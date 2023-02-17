@@ -25,36 +25,51 @@ syntax="proto3";
 option go_package="github.com/phriscage/proto_sample/gen/go/sample/v1alpha";
 package sample.v1alpha;
 
+import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
-import "google/api/resource.proto";
+import "sample/v1alpha/config.proto";
 
-// Proto Sample Config contains the service level and downstream dependency configs
-message Config {
-	option (google.api.resource) = {
-		type: "sample/Config"
-		pattern: "configs/{config}"
-	};
+// Sample Service
+service SampleService {
 
-	// Name of the Config
-	// Example: `configs/my-sample-config`
-	string name = 1;
-	
-	// Id of the Config
-	string id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-	// system environment enum
-	enum Environment {
-		DEVELOPMENT = 0;
-		PRE_PRODUCTION = 1;
-		PRODUCTION = 2;
+	// Gets a Config
+	rpc GetConfig(GetConfigRequest) returns (Config) {
+		// Client Example:
+		// 	curl /configs/{name}
+		option (google.api.http) = {
+			get: "/v1alpha/configs/{name}"
+		};
 	}
-	// system environment 
-	Environment environment = 3 [(google.api.field_behavior) = REQUIRED];
 
-	// system verbosity true/false
-  	bool verbose = 4 [(google.api.field_behavior) = OPTIONAL];
+	// Creates a Config
+	rpc CreateConfig(CreateConfigRequest) returns (CreateConfigResponse) {
+		// Client Example:
+		// 	curl -d '{"name": "my-sample-config", "environment": "development", ...}' 
+		option (google.api.http) = {
+			post: "/v1alpha/configs"
+			body: "*"
+			// additional_bindings: {
+			//	post: "/v1alpha/configs/{config.name}:create"
+			//	body: "config.data"
+			// }
+		};
+	}
+}
 
-	// Creation time of the Config
-	// google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+// Request message for GetCreateConfig method
+message GetConfigRequest {
+	// Name of the Config
+	// 	Example: `configs/my-sample-config`
+	string name = 1 [(google.api.field_behavior) = REQUIRED];
+}
 
+// Request message for CreateConfig method
+message CreateConfigRequest {
+	// Specifiy the system environment config 
+	Config config = 1 [(google.api.field_behavior) = REQUIRED]; 
+}
+
+// Request response for CreateConfig method
+message CreateConfigResponse {
+	string status_message = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
