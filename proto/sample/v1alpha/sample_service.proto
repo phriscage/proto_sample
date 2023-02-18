@@ -22,45 +22,70 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 syntax="proto3";
-option go_package="github.com/phriscage/proto_sample/gen/go/sample/v1alpha";
+
 package sample.v1alpha;
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "sample/v1alpha/book.proto";
 import "sample/v1alpha/config.proto";
+
+option go_package="github.com/phriscage/proto_sample/gen/go/sample/v1alpha";
 
 // Sample Service
 service SampleService {
 
-	// Gets a Config
-	rpc GetConfig(GetConfigRequest) returns (Config) {
+	// Gets the Config
+	rpc GetConfig(google.protobuf.Empty) returns (Config) {
 		// Client Example:
-		// 	curl /configs/{name}
+		// 	curl /config
 		option (google.api.http) = {
-			get: "/v1alpha/configs/{name}"
+			get: "/v1alpha/config"
 		};
 	}
 
-	// Creates a Config
+	// Creates the Config
 	rpc CreateConfig(CreateConfigRequest) returns (CreateConfigResponse) {
 		// Client Example:
 		// 	curl -d '{"name": "my-sample-config", "environment": "development", ...}' 
 		option (google.api.http) = {
-			post: "/v1alpha/configs"
-			body: "*"
+			post: "/v1alpha/config"
+			body: "config"
+		};
+	}
+
+	// Gets a Book
+	rpc GetBook(GetBookRequest) returns (Book) {
+		// Client Example:
+		// 	curl /books/{name}
+		option (google.api.http) = {
+			get: "/v1alpha/books/{name}"
+		};
+	}
+
+	// Creates a Book
+	rpc CreateBook(CreateBookRequest) returns (CreateBookResponse) {
+		// Client Example:
+		// 	curl -d '{"name": "my-sample-book", "environment": "development", ...}' 
+		option (google.api.http) = {
+			post: "/v1alpha/books"
+			body: "book"
 			// additional_bindings: {
-			//	post: "/v1alpha/configs/{config.name}:create"
-			//	body: "config.data"
+			//	post: "/v1alpha/books:create"
+			//	body: "book.data"
 			// }
 		};
 	}
-}
 
-// Request message for GetCreateConfig method
-message GetConfigRequest {
-	// Name of the Config
-	// 	Example: `configs/my-sample-config`
-	string name = 1 [(google.api.field_behavior) = REQUIRED];
+	// List Books
+	rpc ListBooks(ListBooksRequest) returns (ListBooksResponse) {
+		// Client Example:
+		// 	curl /books' 
+		option (google.api.http) = {
+			get: "/v1alpha/books"
+		};
+	}
 }
 
 // Request message for CreateConfig method
@@ -72,4 +97,36 @@ message CreateConfigRequest {
 // Request response for CreateConfig method
 message CreateConfigResponse {
 	string status_message = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Request message for GetCreateBook method
+message GetBookRequest {
+	// Name of the Book
+	// 	Example: `my-sample-book`
+	string name = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for CreateBook method
+message CreateBookRequest {
+	// Specifiy the Book fields
+	Book book = 1 [(google.api.field_behavior) = REQUIRED]; 
+}
+
+// Request response for CreateBook method
+message CreateBookResponse {
+	string status_message = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Request message for ListBooks method
+message ListBooksRequest {
+	// Specifiy the Book name prefix. Matches with wildcard at the end
+	string name_prefix = 1 [(google.api.field_behavior) = OPTIONAL]; 
+}
+
+// Request response for ListBooks method
+message ListBooksResponse {
+	string status_message = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+	// List of Books matching ListBooksRequest filter
+	repeated Book books = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
