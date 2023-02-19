@@ -120,7 +120,7 @@ message CreateBookResponse {
 // Request message for ListBooks method
 message ListBooksRequest {
 	// Specifiy the Book name prefix. Matches with wildcard at the end
-	string name_prefix = 1 [(google.api.field_behavior) = OPTIONAL]; 
+	string name_prefix = 1; 
 }
 
 // Request response for ListBooks method

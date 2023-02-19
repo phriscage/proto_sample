@@ -28,6 +28,7 @@ package sample.v1alpha;
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
+import "sample/v1alpha/person.proto";
 
 option go_package="github.com/phriscage/proto_sample/gen/go/sample/v1alpha";
 
@@ -45,8 +46,8 @@ message Book {
 	// Id of the Book
 	string id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-	// The name of the book author.
-  	string author = 3;
+	// The book authors.
+  	repeated Person authors = 3;
 
   	// The title of the book.
   	string title = 4;

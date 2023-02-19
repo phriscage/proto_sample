@@ -24,10 +24,10 @@ SOFTWARE.
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net"
-	"os"
 	"sync"
 	"time"
 
@@ -36,6 +36,9 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
@@ -56,7 +59,7 @@ type sampleServer struct {
 	pb.UnimplementedSampleServiceServer
 
 	// Server Config
-	ServerCfg *pb.Config
+	serverCfg *pb.Config
 
 	// TODO Setup CSP configs
 	//// GCP Clients
@@ -68,21 +71,14 @@ type sampleServer struct {
 	mu sync.Mutex // protects books
 
 	// Collection of books
-	books map[string][]*pb.Book
+	books map[string]*pb.Book
 }
 
-// Init
-func init() {
-	// Output to stdout instead of the default stderr
-	log.SetOutput(os.Stdout)
+//
+//	helper functions for the grpcServer
+//
 
-	// Only log the debug severity or above
-	log.SetLevel(log.DebugLevel)
-
-	// Set the timestamp format in output
-	log.SetFormatter(&log.TextFormatter{TimestampFormat: "2023-02-08T01:02:03.000000Z", FullTimestamp: true})
-}
-
+// defaultServer options
 func defaultServerOpts() []grpc.ServerOption {
 	return []grpc.ServerOption{}
 }
@@ -92,10 +88,28 @@ func withDuration(duration time.Duration) (key string, value interface{}) {
 	return "grpc.time_ns", duration.Nanoseconds()
 }
 
+// Init a new Sample Server object and any downstream clients
+func newSampleServer(serverCfg *pb.Config) *sampleServer {
+	// Init the Sample Server
+	s := &sampleServer{
+		serverCfg: serverCfg,
+		books:     make(map[string]*pb.Book),
+	}
+	// Validate the Sample Server Config
+	log.Debugf("Validating the Server Configs...")
+	if err := s.validateServerCfg(); err != nil {
+		log.Fatal(err)
+	}
+	log.Debugf("%+v", s)
+	// TODO Setup the Sample Server client contexts
+	//ctx := context.Background()
+	return s
+}
+
 // Sample Server Get ServerCfg getter function
 func (x *sampleServer) getServerCfg() *pb.Config {
 	if x != nil {
-		return x.ServerCfg
+		return x.serverCfg
 	}
 	return nil
 }
@@ -117,23 +131,29 @@ func (x *sampleServer) validateServerCfg() error {
 	return nil
 }
 
-// Init a new Sample Server object and any downstream clients
-func newSampleServer(serverCfg *pb.Config) *sampleServer {
-	// Init the Sample Server
-	s := &sampleServer{
-		ServerCfg: serverCfg,
+//
+// grpc server methods
+//
+
+// GetConfig method
+func (s *sampleServer) GetConfig(ctx context.Context, _ *emptypb.Empty) (*pb.Config, error) {
+	log.Infof("Starting GetConfig...")
+	if s.getServerCfg() == nil {
+		return &pb.Config{}, status.Error(codes.NotFound, fmt.Sprintf("Does not exist"))
 	}
-	// Validate the Sample Server Config
-	log.Debugf("Validating the Server Configs...")
-	if err := s.validateServerCfg(); err != nil {
-		log.Fatal(err)
-	}
-	log.Debugf("%+v", s)
-	// TODO Setup the Sample Server client contexts
-	//ctx := context.Background()
-	return s
+	return s.getServerCfg(), status.Error(codes.OK, fmt.Sprintf("OK"))
 }
 
+// GetBook method
+func (s *sampleServer) GetBook(ctx context.Context, req *pb.GetBookRequest) (*pb.Book, error) {
+	log.Infof("Starting GetBook...")
+	if req == nil && req.GetName() == "" {
+		return &pb.Book{}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
+	}
+	return s.books[req.GetName()], status.Error(codes.OK, fmt.Sprintf("OK"))
+}
+
+// main
 func main() {
 	flag.Parse()
 	opts := []grpc.ServerOption{
@@ -145,7 +165,6 @@ func main() {
 		//grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
 	}
 	if level, ok := log.ParseLevel(*logSeverity); ok == nil {
-		log.Info(log.ParseLevel(*logSeverity))
 		log.SetLevel(level)
 	}
 	host_port := fmt.Sprintf("%s:%d", *host, *port)
