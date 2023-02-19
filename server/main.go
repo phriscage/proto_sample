@@ -28,6 +28,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -151,6 +152,18 @@ func (s *sampleServer) GetBook(ctx context.Context, req *pb.GetBookRequest) (*pb
 		return &pb.Book{}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
 	}
 	return s.books[req.GetName()], status.Error(codes.OK, fmt.Sprintf("OK"))
+}
+
+// Init
+func init() {
+	// Output to stdout instead of the default stderr
+	log.SetOutput(os.Stdout)
+
+	// Only log the debug severity or above
+	log.SetLevel(log.DebugLevel)
+
+	// Set the timestamp format in output
+	log.SetFormatter(&log.TextFormatter{TimestampFormat: "2023-02-08T01:02:03.000000Z", FullTimestamp: true})
 }
 
 // main
