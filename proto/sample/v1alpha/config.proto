@@ -46,17 +46,19 @@ message Config {
 	// Id of the Config
 	string id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+	/*
 	// system environment enum
 	enum Environment {
-		DEVELOPMENT = 0;
-		PRE_PRODUCTION = 1;
-		PRODUCTION = 2;
+		UNKNOWN = 0; // default
+		DEVELOPMENT = 1; 
+		PRE_PRODUCTION = 2;
+		PRODUCTION = 3;
 	}
 	// system environment 
 	Environment environment = 3 [(google.api.field_behavior) = REQUIRED];
-
-	// system verbosity true/false
-  	bool verbose = 4 [(google.api.field_behavior) = OPTIONAL];
+	*/
+	// system environment 
+	string environment = 3 [(google.api.field_behavior) = OPTIONAL];
 
 	// Creation time of the Config
 	google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
