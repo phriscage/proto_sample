@@ -31,20 +31,19 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
 
 var (
-	VERSION string
-	cfgFile string
-	verbose bool
+	VERSION      string
+	cfgFile      string
+	logSeverity  string
+	tls          bool
+	serverCAFile string
+	serverAddr   string
 )
 
 // Bootstrap the Config object from env and defaults
-var cfg = &pb.Config{
-	Verbose: getEnvOrBool("VERBOSE", false),
-}
+//var cfg = &pb.Config{}
 
 // rootCmd is the base command function when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -53,11 +52,8 @@ var rootCmd = &cobra.Command{
 	Long: `The Sample control command is an example for how to interface with protobuf 
 messages and services via a CLI client.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// Only log the INFO level severity or above based on the verbose flag
-		if verbose {
-			log.SetLevel(log.DebugLevel)
-		} else {
-			log.SetLevel(log.InfoLevel)
+		if level, ok := log.ParseLevel(logSeverity); ok == nil {
+			log.SetLevel(level)
 		}
 		return nil
 	},
@@ -92,7 +88,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.client.yaml)")
 
 	// Verbose logging
-	rootCmd.PersistentFlags().BoolVarP(&cfg.Verbose, "verbose", "v", cfg.Verbose, "Enable verbose logging. Defaults to env $VERBOSE")
+	rootCmd.PersistentFlags().StringVarP(&logSeverity, "logSeverity", "l", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity. Defaults to env $LOG_SEVERITY")
 	// Additional parameters
 }
 

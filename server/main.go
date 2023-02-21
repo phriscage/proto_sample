@@ -200,7 +200,7 @@ func main() {
 		opts = []grpc.ServerOption{grpc.Creds(creds)}
 	}
 	*/
-	logrusEntry := log.NewEntry(log.StandardLogger())
+	logrusEntry := log.NewEntry(log.StandardLlogSeverityogger())
 	logOpts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(withDuration),
 	}
