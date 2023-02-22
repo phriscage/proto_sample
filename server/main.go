@@ -46,12 +46,12 @@ import (
 
 var (
 	tls         = flag.Bool("tls", false, "Connection uses TLS if true, else plain TCP")
-	certFile    = flag.String("cert_file", "", "The TLS cert file")
-	keyFile     = flag.String("key_file", "", "The TLS key file")
+	certFile    = flag.String("cert_file", getEnvOrString("CERT_FILE", ""), "The TLS cert file")
+	keyFile     = flag.String("key_file", getEnvOrString("KEY_FILE", ""), "The TLS key file")
 	port        = flag.Int("port", 10000, "The server port")
-	host        = flag.String("host", "127.0.0.1", "The server host ip")
-	logSeverity = flag.String("l", "INFO", "Set the log severity")
-	environment = flag.String("e", "development", "Set the environment name")
+	host        = flag.String("host", getEnvOrString("HOST", "127.0.0.1"), "The server host ip")
+	logSeverity = flag.String("l", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity")
+	environment = flag.String("e", getEnvOrString("ENVIRONMENT", "development"), "Set the environment name")
 )
 
 // Sample Server object that includes the configurations
@@ -200,7 +200,7 @@ func main() {
 		opts = []grpc.ServerOption{grpc.Creds(creds)}
 	}
 	*/
-	logrusEntry := log.NewEntry(log.StandardLlogSeverityogger())
+	logrusEntry := log.NewEntry(log.StandardLogger())
 	logOpts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(withDuration),
 	}

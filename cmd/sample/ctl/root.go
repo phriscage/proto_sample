@@ -55,6 +55,13 @@ messages and services via a CLI client.`,
 		if level, ok := log.ParseLevel(logSeverity); ok == nil {
 			log.SetLevel(level)
 		}
+		requiredFlags := [1]string{"serverAddr"}
+		for _, flagName := range requiredFlags {
+			flagValue, _ := cmd.Flags().GetString(flagName)
+			if flagValue == "" {
+				log.Fatalf("'%s', requires a valid value and cannot be blank", flagName)
+			}
+		}
 		return nil
 	},
 }
@@ -89,7 +96,11 @@ func init() {
 
 	// Verbose logging
 	rootCmd.PersistentFlags().StringVarP(&logSeverity, "logSeverity", "l", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity. Defaults to env $LOG_SEVERITY")
-	// Additional parameters
+
+	// Additional server parameters
+	// Server Address
+	rootCmd.PersistentFlags().StringVarP(&serverAddr, "serverAddr", "a", getEnvOrString("SERVER_ADDR", "127.0.0.1:10000"), "Set the server address to connect with. Defaults to env $SERVER_ADDR")
+
 }
 
 // initConfig reads in config file and environment variables if set
