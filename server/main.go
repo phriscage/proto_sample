@@ -50,7 +50,7 @@ var (
 	keyFile     = flag.String("key_file", getEnvOrString("KEY_FILE", ""), "The TLS key file")
 	port        = flag.Int("port", 10000, "The server port")
 	host        = flag.String("host", getEnvOrString("HOST", "127.0.0.1"), "The server host ip")
-	logSeverity = flag.String("l", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity")
+	logSeverity = flag.String("log_severity", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity")
 	environment = flag.String("e", getEnvOrString("ENVIRONMENT", "development"), "Set the environment name")
 )
 
@@ -151,7 +151,26 @@ func (s *sampleServer) GetBook(ctx context.Context, req *pb.GetBookRequest) (*pb
 	if req == nil && req.GetName() == "" {
 		return &pb.Book{}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
 	}
-	return s.books[req.GetName()], status.Error(codes.OK, fmt.Sprintf("OK"))
+	book, found := s.books[req.GetName()]
+	if !found {
+		return &pb.Book{}, status.Error(codes.NotFound, fmt.Sprintf("Does not exist"))
+	}
+	return book, status.Error(codes.OK, fmt.Sprintf("OK"))
+}
+
+// CreateBook method
+func (s *sampleServer) CreateBook(ctx context.Context, req *pb.CreateBookRequest) (*pb.CreateBookResponse, error) {
+	log.Infof("Starting CreateBook...")
+	// Name, authors [Person], title
+	if req == nil || req.GetBook() == nil {
+		return &pb.CreateBookResponse{StatusMessage: "Request is not valid"}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
+	}
+	_, found := s.books[req.GetBook().GetName()]
+	if found {
+		return &pb.CreateBookResponse{StatusMessage: codes.AlreadyExists.String()}, status.Error(codes.AlreadyExists, codes.AlreadyExists.String())
+	}
+	s.books[req.GetBook().GetName()] = req.Book
+	return &pb.CreateBookResponse{StatusMessage: codes.OK.String()}, status.Error(codes.OK, codes.OK.String())
 }
 
 // Init
