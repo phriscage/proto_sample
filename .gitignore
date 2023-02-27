@@ -22,3 +22,6 @@ third_party/
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Local database files
+*.db
