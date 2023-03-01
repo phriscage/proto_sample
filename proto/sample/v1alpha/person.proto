@@ -60,5 +60,5 @@ message Person {
 	repeated PhoneNumber phone_numbers = 4;
 
 	// Creation time of the Person
-	google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+	google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
