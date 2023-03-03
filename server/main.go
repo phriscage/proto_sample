@@ -32,6 +32,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -40,6 +41,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 
 	pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
@@ -61,6 +64,9 @@ type sampleServer struct {
 
 	// Server Config
 	serverCfg *pb.Config
+
+	// Database Client
+	gormDb *gorm.DB
 
 	// TODO Setup CSP configs
 	//// GCP Clients
@@ -101,7 +107,24 @@ func newSampleServer(serverCfg *pb.Config) *sampleServer {
 	if err := s.validateServerCfg(); err != nil {
 		log.Fatal(err)
 	}
-	log.Debugf("%+v", s)
+	log.Debug(spew.Sprintf("%#v", s))
+	// Setup database connection(s)
+	//log.Debug(s.getServerCfg())
+	dsn := s.getServerCfg().GetDatabase().GetConnection().GetDsn()
+	provider := s.getServerCfg().GetDatabase().GetProvider()
+	var db *gorm.DB
+	var err error
+	if provider.String() == "SQLITE" {
+		db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+		// TODO add PostgreSQL support
+		//} else if provider.String() == "POSTGRESQL" {
+	} else {
+		log.Fatalf("pb.Config.Database.Provider not configured")
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+	s.gormDb = db
 	// TODO Setup the Sample Server client contexts
 	//ctx := context.Background()
 	return s
@@ -118,8 +141,8 @@ func (x *sampleServer) getServerCfg() *pb.Config {
 // Validate the Sample Server Config pb
 func (x *sampleServer) validateServerCfg() error {
 	// validate pb.Config
-	serverCfg := x.getServerCfg()
-	if serverCfg == nil {
+	sCfg := x.getServerCfg()
+	if sCfg == nil {
 		return fmt.Errorf("pb.Config cannot be nil")
 	}
 	/*
@@ -129,6 +152,10 @@ func (x *sampleServer) validateServerCfg() error {
 			return fmt.Errorf("pb.Config.XyZ is not a valid value")
 		}
 	*/
+	if dsn := sCfg.GetDatabase().GetConnection().GetDsn(); dsn == "" {
+		return fmt.Errorf("pb.Config.Database.Connection.Dsn cannot be nil")
+	}
+
 	return nil
 }
 
@@ -238,6 +265,12 @@ func main() {
 
 	cfg := &pb.Config{
 		Environment: *environment,
+		Database: &pb.Database{
+			Provider: 1,
+			Connection: &pb.Database_Connection{
+				Dsn: "abc",
+			},
+		},
 	}
 	//pb.RegisterSampleServiceServer(grpcServer)
 	pb.RegisterSampleServiceServer(grpcServer, newSampleServer(cfg))
