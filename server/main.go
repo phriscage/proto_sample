@@ -66,7 +66,7 @@ type sampleServer struct {
 	serverCfg *pb.Config
 
 	// Database Client
-	gormDb *gorm.DB
+	db *gorm.DB
 
 	// TODO Setup CSP configs
 	//// GCP Clients
@@ -124,7 +124,7 @@ func newSampleServer(serverCfg *pb.Config) *sampleServer {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.gormDb = db
+	s.db = db
 	// TODO Setup the Sample Server client contexts
 	//ctx := context.Background()
 	return s
@@ -178,8 +178,13 @@ func (s *sampleServer) GetBook(ctx context.Context, req *pb.GetBookRequest) (*pb
 	if req == nil && req.GetName() == "" {
 		return &pb.Book{}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
 	}
-	book, found := s.books[req.GetName()]
-	if !found {
+
+	book := &pb.Book{}
+	//result := s.db.Where(&pb.Book{Name: req.GetName()}).First(&book)
+	result := s.db.Where(&pb.Book{Name: req.GetName()}).First(&book)
+	log.Debugf("%v", result)
+	if result.Error != nil {
+		log.Warn(result.Error)
 		return &pb.Book{}, status.Error(codes.NotFound, fmt.Sprintf("Does not exist"))
 	}
 	return book, status.Error(codes.OK, fmt.Sprintf("OK"))
@@ -192,6 +197,7 @@ func (s *sampleServer) CreateBook(ctx context.Context, req *pb.CreateBookRequest
 	if req == nil || req.GetBook() == nil {
 		return &pb.CreateBookResponse{StatusMessage: "Request is not valid"}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
 	}
+	s.db.First(req.Book)
 	_, found := s.books[req.GetBook().GetName()]
 	if found {
 		return &pb.CreateBookResponse{StatusMessage: codes.AlreadyExists.String()}, status.Error(codes.AlreadyExists, codes.AlreadyExists.String())
