@@ -56,25 +56,22 @@ message Person {
   	// Email for the person.
   	string email = 3;
 
+	// Phone number object
+	message PhoneNumber {
+		option (.gorm.opts) = {
+			ormable: true
+		};
+		// Id of the PhoneNumber
+		string id = 1 [(.gorm.field).tag = {type: "uuid" primary_key: true}];
+		// phone number
+		string number = 2;
+		// type of phone number e.g. mobile, work, etc.
+		string type = 3;
+	}
 	// Phone numbers for the Person
-	repeated PhoneNumber phone_numbers = 4;
-	//repeated PhoneNumber phone_numbers = 4 [(.gorm.field).has_many = {}];
+	repeated PhoneNumber phone_numbers = 4 [(.gorm.field).has_many = {}];
 	//repeated PhoneNumber phone_numbers = 4 [(.gorm.field).has_many = {foreignkey: "person_id"}];
-	//repeated PhoneNumber phone_numbers = 4 [(.gorm.field).drop = true];
 
 	// Creation time of the Person
 	google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// Phone number object
-message PhoneNumber {
-	option (.gorm.opts) = {
-		ormable: true
-	};
-	// Id of the PhoneNumber
-	string id = 1 [(.gorm.field).tag = {type: "uuid" primary_key: true}];
-	// phone number
-	string number = 2;
-	// type of phone number e.g. mobile, work, etc.
-	string type = 3;
 }

@@ -41,8 +41,13 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+
+	// TODO Using GROM v2 requires protoc-gen-gorm to update
+	// dependencies [here](https://github.com/infobloxopen/protoc-gen-gorm/issues/243)
+	// "gorm.io/driver/sqlite"
+	// "gorm.io/gorm"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 
 	pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
@@ -63,7 +68,7 @@ type sampleServer struct {
 	pb.UnimplementedSampleServiceServer
 
 	// Server Config
-	serverCfg *pb.Config
+	cfg *pb.Config
 
 	// Database Client
 	db *gorm.DB
@@ -96,26 +101,27 @@ func withDuration(duration time.Duration) (key string, value interface{}) {
 }
 
 // Init a new Sample Server object and any downstream clients
-func newSampleServer(serverCfg *pb.Config) *sampleServer {
+func newSampleServer(cfg *pb.Config) *sampleServer {
 	// Init the Sample Server
 	s := &sampleServer{
-		serverCfg: serverCfg,
-		books:     make(map[string]*pb.Book),
+		cfg:   cfg,
+		books: make(map[string]*pb.Book),
 	}
 	// Validate the Sample Server Config
 	log.Debugf("Validating the Server Configs...")
-	if err := s.validateServerCfg(); err != nil {
+	if err := s.validateCfg(); err != nil {
 		log.Fatal(err)
 	}
 	log.Debug(spew.Sprintf("%#v", s))
 	// Setup database connection(s)
-	//log.Debug(s.getServerCfg())
-	dsn := s.getServerCfg().GetDatabase().GetConnection().GetDsn()
-	provider := s.getServerCfg().GetDatabase().GetProvider()
+	//log.Debug(s.getCfg())
+	dsn := s.getCfg().GetDatabase().GetConnection().GetDsn()
+	provider := s.getCfg().GetDatabase().GetProvider()
 	var db *gorm.DB
 	var err error
 	if provider.String() == "SQLITE" {
-		db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+		// db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{}) // GORM v2
+		db, err = gorm.Open("sqlite3", dsn)
 		// TODO add PostgreSQL support
 		//} else if provider.String() == "POSTGRESQL" {
 	} else {
@@ -125,34 +131,39 @@ func newSampleServer(serverCfg *pb.Config) *sampleServer {
 		log.Fatal(err)
 	}
 	s.db = db
+	db.LogMode(false)
 	// TODO Setup the Sample Server client contexts
 	//ctx := context.Background()
 	return s
 }
 
-// Sample Server Get ServerCfg getter function
-func (x *sampleServer) getServerCfg() *pb.Config {
+// Sample Server Get Cfg getter function
+func (x *sampleServer) getCfg() *pb.Config {
 	if x != nil {
-		return x.serverCfg
+		return x.cfg
 	}
 	return nil
 }
 
 // Validate the Sample Server Config pb
-func (x *sampleServer) validateServerCfg() error {
+func (x *sampleServer) validateCfg() error {
 	// validate pb.Config
-	sCfg := x.getServerCfg()
-	if sCfg == nil {
+	cfg := x.getCfg()
+	if cfg == nil {
 		return fmt.Errorf("pb.Config cannot be nil")
 	}
 	/*
 		// validate pb.Config.XyZ enum
-		sev := serverCfg.GetXyZ()
+		sev := cfg.GetXyZ()
 		if _, ok := pb.Config_XyZ_value[sev.String()]; !ok {
 			return fmt.Errorf("pb.Config.XyZ is not a valid value")
 		}
 	*/
-	if dsn := sCfg.GetDatabase().GetConnection().GetDsn(); dsn == "" {
+	dbCfg := cfg.GetDatabase()
+	if dbCfg == nil {
+		return fmt.Errorf("pb.Config.Database cannot be nil")
+	}
+	if dsn := dbCfg.GetConnection().GetDsn(); dsn == "" {
 		return fmt.Errorf("pb.Config.Database.Connection.Dsn cannot be nil")
 	}
 
@@ -166,10 +177,10 @@ func (x *sampleServer) validateServerCfg() error {
 // GetConfig method
 func (s *sampleServer) GetConfig(ctx context.Context, _ *emptypb.Empty) (*pb.Config, error) {
 	log.Infof("Starting GetConfig...")
-	if s.getServerCfg() == nil {
+	if s.getCfg() == nil {
 		return &pb.Config{}, status.Error(codes.NotFound, fmt.Sprintf("Does not exist"))
 	}
-	return s.getServerCfg(), status.Error(codes.OK, fmt.Sprintf("OK"))
+	return s.getCfg(), status.Error(codes.OK, codes.OK.String())
 }
 
 // GetBook method
@@ -178,16 +189,23 @@ func (s *sampleServer) GetBook(ctx context.Context, req *pb.GetBookRequest) (*pb
 	if req == nil && req.GetName() == "" {
 		return &pb.Book{}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
 	}
-
-	book := &pb.Book{}
-	//result := s.db.Where(&pb.Book{Name: req.GetName()}).First(&book)
-	result := s.db.Where(&pb.Book{Name: req.GetName()}).First(&book)
-	log.Debugf("%v", result)
-	if result.Error != nil {
-		log.Warn(result.Error)
+	provider := s.getCfg().GetDatabase().GetProvider()
+	pbBook := pb.Book{Name: req.GetName()}
+	book, err := pbBook.ToORM(ctx)
+	if err != nil {
+		log.Errorf("%s: %s", provider, err)
+		return &pb.Book{}, status.Error(codes.Internal, fmt.Sprint("Internal Server Error"))
+	}
+	if err := s.db.Where(&pbBook).First(&book).Error; err != nil {
+		log.Warnf("%s: %s", provider, err)
 		return &pb.Book{}, status.Error(codes.NotFound, fmt.Sprintf("Does not exist"))
 	}
-	return book, status.Error(codes.OK, fmt.Sprintf("OK"))
+	pbBook, err = book.ToPB(ctx)
+	if err != nil {
+		log.Errorf("%s: %s", provider, err)
+		return &pb.Book{}, status.Error(codes.Internal, fmt.Sprint("Internal Server Error"))
+	}
+	return &pbBook, status.Error(codes.OK, codes.OK.String())
 }
 
 // CreateBook method
@@ -197,12 +215,22 @@ func (s *sampleServer) CreateBook(ctx context.Context, req *pb.CreateBookRequest
 	if req == nil || req.GetBook() == nil {
 		return &pb.CreateBookResponse{StatusMessage: "Request is not valid"}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
 	}
-	s.db.First(req.Book)
-	_, found := s.books[req.GetBook().GetName()]
-	if found {
+	provider := s.getCfg().GetDatabase().GetProvider()
+	pbBook := req.GetBook()
+	book, err := pbBook.ToORM(ctx)
+	book.Id = createUUIDv4()
+	if err != nil {
+		log.Errorf("%s: %s", provider, err)
+		return &pb.CreateBookResponse{StatusMessage: codes.Internal.String()}, status.Error(codes.Internal, fmt.Sprint("Internal Server Error"))
+	}
+	if err := s.db.Where(&pbBook).First(&book).Error; err == nil {
 		return &pb.CreateBookResponse{StatusMessage: codes.AlreadyExists.String()}, status.Error(codes.AlreadyExists, codes.AlreadyExists.String())
 	}
-	s.books[req.GetBook().GetName()] = req.Book
+	log.Debug(spew.Sprintf("%#v", book))
+	if err := s.db.Create(&book).Error; err != nil {
+		log.Errorf("%s: %s", provider, err)
+		return &pb.CreateBookResponse{StatusMessage: codes.Internal.String()}, status.Error(codes.Internal, fmt.Sprint("Internal Server Error"))
+	}
 	return &pb.CreateBookResponse{StatusMessage: codes.OK.String()}, status.Error(codes.OK, codes.OK.String())
 }
 
@@ -274,7 +302,7 @@ func main() {
 		Database: &pb.Database{
 			Provider: 1,
 			Connection: &pb.Database_Connection{
-				Dsn: "abc",
+				Dsn: "db/sqlite/data.db",
 			},
 		},
 	}
