@@ -52,5 +52,26 @@ sqlite3
 
 	migrate -source file://migrations/sqlite -database sqlite3://sqlite/data.db up
 
+PostgreSQL
+
+
+## Validate
+
+Validate the schema is correct
+
+sqlite3
+
+	sqlite3 db/sqlite/data.db '.schema'
+
+PostgreSQL
+
+
+# Samples Queries 
+
+Run a sample query
+
+sqlite3
+
+	sqlite3 db/sqlite/data.db '.mode json' "SELECT * FROM books;
 
 PostgreSQL

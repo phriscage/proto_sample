@@ -74,4 +74,7 @@ message Person {
 
 	// Creation time of the Person
 	google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // Update time of the Person
+    google.protobuf.Timestamp updated_at = 10002 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
