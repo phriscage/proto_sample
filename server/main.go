@@ -37,6 +37,7 @@ import (
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/maps"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -53,13 +54,15 @@ import (
 )
 
 var (
-	tls         = flag.Bool("tls", false, "Connection uses TLS if true, else plain TCP")
-	certFile    = flag.String("cert_file", getEnvOrString("CERT_FILE", ""), "The TLS cert file")
-	keyFile     = flag.String("key_file", getEnvOrString("KEY_FILE", ""), "The TLS key file")
-	port        = flag.Int("port", 10000, "The server port")
-	host        = flag.String("host", getEnvOrString("HOST", "127.0.0.1"), "The server host ip")
-	logSeverity = flag.String("log_severity", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity")
-	environment = flag.String("e", getEnvOrString("ENVIRONMENT", "development"), "Set the environment name")
+	tls                   = flag.Bool("tls", false, "Connection uses TLS if true, else plain TCP")
+	certFile              = flag.String("cert_file", getEnvOrString("CERT_FILE", ""), "The TLS cert file")
+	keyFile               = flag.String("key_file", getEnvOrString("KEY_FILE", ""), "The TLS key file")
+	port                  = flag.Int("port", 10000, "The server port")
+	host                  = flag.String("host", getEnvOrString("HOST", "127.0.0.1"), "The server host ip")
+	logSeverity           = flag.String("log_severity", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity")
+	environment           = flag.String("environment", getEnvOrString("ENVIRONMENT", "development"), "Set the environment name")
+	databaseProvider      = flag.String("database_provider", getEnvOrString("DATABASE_PROVIDER", "sqlite3"), "Set the Database provider type")
+	databaseConnectionDsn = flag.String("database_connection_dsn", getEnvOrString("DATABASE_CONNECTION_DSN", "abc://123"), "Set the Database Connection DSN")
 )
 
 // Sample Server object that includes the configurations
@@ -297,12 +300,19 @@ func main() {
 	log.Infof("Starting grpc server on '%s'", host_port)
 	grpcServer := grpc.NewServer(append(defaultServerOpts(), opts...)...)
 
+	// Config init and validation
+	//var dbProviderVal pb.Database_Provider
+	dbProviderVal, ok := pb.Database_Provider_value[*databaseProvider]
+	if !ok {
+		providers := remove(maps.Values(pb.Database_Provider_name), "UNKNOWN")
+		log.Fatalf("pb.Config.Database.Provider is not a valid name: '%s'", providers)
+	}
 	cfg := &pb.Config{
 		Environment: *environment,
 		Database: &pb.Database{
-			Provider: 1,
+			Provider: pb.Database_Provider(dbProviderVal),
 			Connection: &pb.Database_Connection{
-				Dsn: "db/sqlite/data.db",
+				Dsn: *databaseConnectionDsn,
 			},
 		},
 	}

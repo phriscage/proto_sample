@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/golang/protobuf v1.5.2
+	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/infobloxopen/atlas-app-toolkit v1.4.0
 	github.com/infobloxopen/protoc-gen-gorm v1.1.2
@@ -13,6 +14,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.15.0
+	golang.org/x/exp v0.0.0-20230307190834-24139beb5833
 	google.golang.org/api v0.109.0
 	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef
 	google.golang.org/grpc v1.52.0
@@ -24,7 +26,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.1 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.5.0 // indirect
