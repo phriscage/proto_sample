@@ -59,8 +59,10 @@ Install Go plugins:
 
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+    go install github.com/infobloxopen/protoc-gen-gorm@latest
 
-Download protobuf 3P build dependencies:
+Download protobuf 3P build dependencies: 
+_TODO_ Add [Buf](https://buf.build/) to streamline proto build process
 *Make directories*
 
 	mkdir -p third_party
@@ -68,6 +70,10 @@ Download protobuf 3P build dependencies:
 *Service*
 
 	git clone https://github.com/googleapis/googleapis third_party/googleapis
+
+*GORM* 
+
+	git clone https://github.com/infobloxopen/protoc-gen-gorm third_party/protoc-gen-gorm
 
 *BQ Schemas*
 
@@ -77,9 +83,14 @@ Generate libraries:
 *Make directories*
 
 	mkdir -p gen/go
+
 *Service*
 
-	protoc -I proto -I third_party/googleapis --go_out ./gen/go/ --go_opt paths=source_relative --go-grpc_out ./gen/go/ --go-grpc_opt paths=source_relative proto/sample/v1alpha/*.proto
+	protoc -I proto -I third_party/googleapis -I third_party/protoc-gen-gorm --go_out ./gen/go/ --go_opt paths=source_relative --go-grpc_out ./gen/go/ --go-grpc_opt paths=source_relative proto/sample/v1alpha/*.proto
+
+*GROM* 
+
+	protoc -I proto -I third_party/googleapis -I third_party/protoc-gen-gorm --gorm_out ./gen/go/ --gorm_opt paths=source_relative proto/sample/v1alpha/*.proto
 
 *BQ Schemas*
 

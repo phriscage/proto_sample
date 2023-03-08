@@ -60,7 +60,31 @@ message Config {
 	// system environment 
 	string environment = 3;
 
-	// Creation time of the Config
-	google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+	// database config
+	Database database = 4; 
 
+	// Creation time of the Config
+	google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+}
+
+// Database message contains the database configuration and connection settings
+message Database {
+
+	// provider type
+	enum Provider {
+		UNKNOWN = 0; // default
+		SQLITE = 1;
+		POSTGRESQL = 2;
+	}
+	// provider
+	Provider provider = 1; 
+
+	// connection settings
+	message Connection {
+		// data source name
+		string dsn = 1; 
+	}
+	// connection
+	Connection connection = 2;
 }

@@ -26,6 +26,8 @@ package main
 import (
 	"os"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
 // getEnvOrString function for to parse string environment variables
@@ -47,3 +49,19 @@ func getEnvOrBool(key string, defaultVal bool) bool {
 
 // function for parse slice environment variables
 // TODO
+
+// create a new UUID v4 string
+func createUUIDv4() string {
+	u, _ := uuid.NewRandom()
+	return u.String()
+}
+
+// remove string from slice
+func remove(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
