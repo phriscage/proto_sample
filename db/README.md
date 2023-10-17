@@ -28,18 +28,18 @@ Install Migrate CLI via appropriate [Installation](https://github.com/golang-mig
 
 Prerequisites:
 
-	sudo apt-get install gcc
+    sudo apt-get install gcc
 
 Installation:
 
-	CGO_ENABLED=1 go install -tags 'postgres' -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+    CGO_ENABLED=1 go install -tags 'postgres' -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 ## Configure
 
 Create the migration files in the [migrations](./migrations/) directory with *sql* file extension based on the inital data model. e.g.
 
-	migrate create -ext sql -dir migrations -seq persons
-	migrate create -ext sql -dir migrations -seq books
+    migrate create -ext sql -dir migrations -seq persons
+    migrate create -ext sql -dir migrations -seq books
 
 
 ## Migrate
@@ -48,9 +48,9 @@ Migrate the database migration files based on the database storage engine.
 
 sqlite3
 
-	mkdir -p sqlite
+    mkdir -p sqlite
 
-	migrate -source file://migrations/sqlite -database sqlite3://sqlite/data.db up
+    migrate -source file://migrations/sqlite -database sqlite3://sqlite/data.db up
 
 PostgreSQL
 
@@ -61,7 +61,7 @@ Validate the schema is correct
 
 sqlite3
 
-	sqlite3 db/sqlite/data.db '.schema'
+    sqlite3 db/sqlite/data.db '.schema'
 
 PostgreSQL
 
@@ -72,6 +72,6 @@ Run a sample query
 
 sqlite3
 
-	sqlite3 db/sqlite/data.db '.mode json' "SELECT * FROM books;
+    sqlite3 db/sqlite/data.db '.mode json' "SELECT * FROM books;
 
 PostgreSQL

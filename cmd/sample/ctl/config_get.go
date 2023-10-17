@@ -24,58 +24,58 @@ SOFTWARE.
 package ctl
 
 import (
-	"context"
-	"time"
+    "context"
+    "time"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/emptypb"
+    log "github.com/sirupsen/logrus"
+    "github.com/spf13/cobra"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/metadata"
+    "google.golang.org/protobuf/types/known/emptypb"
 
-	pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
+    pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
 
 // configGetCmd is the management command
 var configGetCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Sample CTL config get command",
-	Long:  `The Sample CTL configs command will perform config get operation.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Infof("Starting configGetCmd...")
+    Use:   "get",
+    Short: "Sample CTL config get command",
+    Long:  `The Sample CTL configs command will perform config get operation.`,
+    Run: func(cmd *cobra.Command, args []string) {
+        log.Infof("Starting configGetCmd...")
 
-		conn, err := newGRPCClientConn(tls, serverCAFile, serverAddr)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer conn.Close()
-		c := pb.NewSampleServiceClient(conn)
-		config, err := getConfig(c, &emptypb.Empty{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Debugf("%#v", config)
+        conn, err := newGRPCClientConn(tls, serverCAFile, serverAddr)
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer conn.Close()
+        c := pb.NewSampleServiceClient(conn)
+        config, err := getConfig(c, &emptypb.Empty{})
+        if err != nil {
+            log.Fatal(err)
+        }
+        log.Debugf("%#v", config)
 
-		log.Infof("Finished configGetCmd.")
-	},
+        log.Infof("Finished configGetCmd.")
+    },
 }
 
 // getConfig gets the Config from the server
 func getConfig(c pb.SampleServiceClient, req *emptypb.Empty) (*pb.Config, error) {
-	log.Debugf("Getting Config for (%s)", req)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	var header, trailer metadata.MD // var to store header and trailer
-	resp, err := c.GetConfig(ctx, req, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		log.Warnf("%#v.getConfig(_) = _, %v: ", c, err)
-		return nil, err
-	}
-	return resp, nil
+    log.Debugf("Getting Config for (%s)", req)
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+    var header, trailer metadata.MD // var to store header and trailer
+    resp, err := c.GetConfig(ctx, req, grpc.Header(&header), grpc.Trailer(&trailer))
+    if err != nil {
+        log.Warnf("%#v.getConfig(_) = _, %v: ", c, err)
+        return nil, err
+    }
+    return resp, nil
 }
 
 // init
 func init() {
-	//configsCmd.PersistenFlags().BoolVarP
-	configCmd.AddCommand(configGetCmd)
+    //configsCmd.PersistenFlags().BoolVarP
+    configCmd.AddCommand(configGetCmd)
 }

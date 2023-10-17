@@ -34,46 +34,46 @@ option go_package="github.com/phriscage/proto_sample/gen/go/sample/v1alpha";
 
 // Proto Sample Person message contains the attributes for a Person 
 message Person {
-	option (google.api.resource) = {
-		type: "sample/Person"
-		pattern: "people/{person}"
-	};
+    option (google.api.resource) = {
+        type: "sample/Person"
+        pattern: "people/{person}"
+    };
 
-   	option (.gorm.opts) = {
+       option (.gorm.opts) = {
         ormable: true
     };
 
-	// Name of the Person
-	// Example: `people/jane-doe`
-	string name = 1;
-	
-	// Id of the Person
-	string id = 2 [
+    // Name of the Person
+    // Example: `people/jane-doe`
+    string name = 1;
+    
+    // Id of the Person
+    string id = 2 [
         (google.api.field_behavior) = OUTPUT_ONLY,
         (.gorm.field).tag = {type: "uuid" primary_key: true}
     ];
 
-  	// Email for the person.
-  	string email = 3;
+      // Email for the person.
+      string email = 3;
 
-	// Phone number object
-	message PhoneNumber {
-		option (.gorm.opts) = {
-			ormable: true
-		};
-		// Id of the PhoneNumber
-		string id = 1 [(.gorm.field).tag = {type: "uuid" primary_key: true}];
-		// phone number
-		string number = 2;
-		// type of phone number e.g. mobile, work, etc.
-		string type = 3;
-	}
-	// Phone numbers for the Person
-	repeated PhoneNumber phone_numbers = 4 [(.gorm.field).has_many = {}];
-	//repeated PhoneNumber phone_numbers = 4 [(.gorm.field).has_many = {foreignkey: "person_id"}];
+    // Phone number object
+    message PhoneNumber {
+        option (.gorm.opts) = {
+            ormable: true
+        };
+        // Id of the PhoneNumber
+        string id = 1 [(.gorm.field).tag = {type: "uuid" primary_key: true}];
+        // phone number
+        string number = 2;
+        // type of phone number e.g. mobile, work, etc.
+        string type = 3;
+    }
+    // Phone numbers for the Person
+    repeated PhoneNumber phone_numbers = 4 [(.gorm.field).has_many = {}];
+    //repeated PhoneNumber phone_numbers = 4 [(.gorm.field).has_many = {foreignkey: "person_id"}];
 
-	// Creation time of the Person
-	google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Creation time of the Person
+    google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
 
     // Update time of the Person
     google.protobuf.Timestamp updated_at = 10002 [(google.api.field_behavior) = OUTPUT_ONLY];

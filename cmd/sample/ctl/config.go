@@ -24,32 +24,32 @@ SOFTWARE.
 package ctl
 
 import (
-	"os"
+    "os"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
+    log "github.com/sirupsen/logrus"
+    "github.com/spf13/cobra"
 )
 
 // These are defined at the top-level command
 var (
-	configName string
+    configName string
 )
 
 // configCmd is the management command
 var configCmd = &cobra.Command{
-	Use:   "configs",
-	Short: "Sample CTL configs command",
-	Long:  `The Sample CTL configs command will perform configs operations.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Debugf("Starting configCmd...")
-		cmd.Help()
-		log.Debugf("Finished configCmd")
-		os.Exit(0)
-	},
+    Use:   "configs",
+    Short: "Sample CTL configs command",
+    Long:  `The Sample CTL configs command will perform configs operations.`,
+    Run: func(cmd *cobra.Command, args []string) {
+        log.Debugf("Starting configCmd...")
+        cmd.Help()
+        log.Debugf("Finished configCmd")
+        os.Exit(0)
+    },
 }
 
 // init
 func init() {
-	configCmd.PersistentFlags().StringVar(&configName, "configName", "", "Config name")
-	adminCmd.AddCommand(configCmd)
+    configCmd.PersistentFlags().StringVar(&configName, "configName", "", "Config name")
+    adminCmd.AddCommand(configCmd)
 }

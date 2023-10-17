@@ -35,34 +35,34 @@ option go_package="github.com/phriscage/proto_sample/gen/go/sample/v1alpha";
 
 // Proto Sample Book message contains the attributes for a Book 
 message Book {
-	option (google.api.resource) = {
-		type: "sample/Book"
-		pattern: "books/{book}"
-	};
+    option (google.api.resource) = {
+        type: "sample/Book"
+        pattern: "books/{book}"
+    };
 
     option (.gorm.opts) = {
         ormable: true
     };
 
-	// Name of the Book
-	// Example: `books/my-sample-book`
-	string name = 1;
-	
-	// Id of the Book
-	string id = 2 [
-		(google.api.field_behavior) = OUTPUT_ONLY, 
-		(.gorm.field).tag = {type: "uuid" primary_key: true}
-	];
+    // Name of the Book
+    // Example: `books/my-sample-book`
+    string name = 1;
+    
+    // Id of the Book
+    string id = 2 [
+        (google.api.field_behavior) = OUTPUT_ONLY, 
+        (.gorm.field).tag = {type: "uuid" primary_key: true}
+    ];
 
-	// The book authors.
-  	repeated Person authors = 3 [(.gorm.field).many_to_many = {jointable: "book_authors"}];
+    // The book authors.
+      repeated Person authors = 3 [(.gorm.field).many_to_many = {jointable: "book_authors"}];
 
-  	// The title of the book.
-  	string title = 4;
+      // The title of the book.
+      string title = 4;
 
-	// Creation time of the Book
-	google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Creation time of the Book
+    google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-	// Update time of the Book
-	google.protobuf.Timestamp updated_at = 10002 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Update time of the Book
+    google.protobuf.Timestamp updated_at = 10002 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

@@ -24,30 +24,30 @@ SOFTWARE.
 package ctl
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
+    log "github.com/sirupsen/logrus"
+    "github.com/spf13/cobra"
 )
 
 // These are defined at the top-level command
 var (
-	abc string
+    abc string
 )
 
 // adminCmd is the management command
 var adminCmd = &cobra.Command{
-	Use:   "admin",
-	Short: "Sample CTL admin command",
-	Long:  `The Sample CTL admin command will perform administrative operations.`,
-	// PersistentPreRunE:
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Debugln("admin command called. Add main logic here")
-		log.Debugf("%v", serverAddr)
-		log.Infof("Starting adminCmd...")
-	},
+    Use:   "admin",
+    Short: "Sample CTL admin command",
+    Long:  `The Sample CTL admin command will perform administrative operations.`,
+    // PersistentPreRunE:
+    Run: func(cmd *cobra.Command, args []string) {
+        log.Debugln("admin command called. Add main logic here")
+        log.Debugf("%v", serverAddr)
+        log.Infof("Starting adminCmd...")
+    },
 }
 
 // init
 func init() {
-	//adminCmd.PersistenFlags().BoolVarP
-	rootCmd.AddCommand(adminCmd)
+    //adminCmd.PersistenFlags().BoolVarP
+    rootCmd.AddCommand(adminCmd)
 }

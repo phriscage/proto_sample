@@ -24,35 +24,35 @@ SOFTWARE.
 package ctl
 
 import (
-	"fmt"
+    "fmt"
 
-	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/testdata"
-	//pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
+    log "github.com/sirupsen/logrus"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/credentials"
+    "google.golang.org/grpc/testdata"
+    //pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
 
 // newGRPCClientConn creates a new grpc.ClientConn to communicate with the GRPC server
 func newGRPCClientConn(tls bool, srvCAFile, srvAddr string) (*grpc.ClientConn, error) {
-	var opts []grpc.DialOption
-	if tls {
-		if srvCAFile == "" {
-			srvCAFile = testdata.Path("ca.pem")
-		}
-		creds, err := credentials.NewClientTLSFromFile(srvCAFile, "")
-		if err != nil {
-			return nil, fmt.Errorf("FAiled to create TLS credentials &v", err)
-		}
-		opts = append(opts, grpc.WithTransportCredentials(creds))
-	} else {
-		opts = append(opts, grpc.WithInsecure())
-	}
+    var opts []grpc.DialOption
+    if tls {
+        if srvCAFile == "" {
+            srvCAFile = testdata.Path("ca.pem")
+        }
+        creds, err := credentials.NewClientTLSFromFile(srvCAFile, "")
+        if err != nil {
+            return nil, fmt.Errorf("FAiled to create TLS credentials &v", err)
+        }
+        opts = append(opts, grpc.WithTransportCredentials(creds))
+    } else {
+        opts = append(opts, grpc.WithInsecure())
+    }
 
-	log.Infof("Starting new gRPC client for server '%s'", srvAddr)
-	conn, err := grpc.Dial(srvAddr, opts...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to dial: %v", err)
-	}
-	return conn, nil
+    log.Infof("Starting new gRPC client for server '%s'", srvAddr)
+    conn, err := grpc.Dial(srvAddr, opts...)
+    if err != nil {
+        return nil, fmt.Errorf("failed to dial: %v", err)
+    }
+    return conn, nil
 }

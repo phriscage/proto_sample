@@ -26,9 +26,9 @@ package main
 import "github.com/phriscage/proto_sample/cmd/sample/ctl"
 
 var (
-	VERSION = "0.0.1"
+    VERSION = "0.0.1"
 )
 
 func main() {
-	ctl.Execute(VERSION)
+    ctl.Execute(VERSION)
 }

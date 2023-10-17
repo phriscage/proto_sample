@@ -31,60 +31,60 @@ import "google/protobuf/timestamp.proto";
 
 option go_package="github.com/phriscage/proto_sample/gen/go/sample/v1alpha";
 
-// Proto Sample Config message contains the service level and downstream 
+// Proto Sample Config message contains the service level and downstream
 // dependency config objects
 message Config {
-	option (google.api.resource) = {
-		type: "sample/Config"
-		pattern: "configs/{config}"
-	};
+  option (google.api.resource) = {
+        type: "sample/Config"
+        pattern: "configs/{config}"
+    };
 
-	// Name of the Config
-	// Example: `configs/my-sample-config`
-	string name = 1;
-	
-	// Id of the Config
-	string id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Name of the Config
+    // Example: `configs/my-sample-config`
+    string name = 1;
 
-	/*
-	// system environment enum
-	enum Environment {
-		UNKNOWN = 0; // default
-		DEVELOPMENT = 1; 
-		PRE_PRODUCTION = 2;
-		PRODUCTION = 3;
-	}
-	// system environment 
-	Environment environment = 3;
-	*/
-	// system environment 
-	string environment = 3;
+    // Id of the Config
+    string id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-	// database config
-	Database database = 4; 
+    /*
+    // system environment enum
+    enum Environment {
+        UNKNOWN = 0; // default
+        DEVELOPMENT = 1;
+        PRE_PRODUCTION = 2;
+        PRODUCTION = 3;
+    }
+    // system environment
+    Environment environment = 3;
+    */
+    // system environment
+    string environment = 3;
 
-	// Creation time of the Config
-	google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // database config
+    Database database = 4;
+
+    // Creation time of the Config
+    google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
 
 }
 
 // Database message contains the database configuration and connection settings
 message Database {
 
-	// provider type
-	enum Provider {
-		UNKNOWN = 0; // default
-		SQLITE = 1;
-		POSTGRESQL = 2;
-	}
-	// provider
-	Provider provider = 1; 
+    // provider type
+    enum Provider {
+        UNKNOWN = 0; // default
+        SQLITE = 1;
+        POSTGRESQL = 2;
+    }
+    // provider
+    Provider provider = 1;
 
-	// connection settings
-	message Connection {
-		// data source name
-		string dsn = 1; 
-	}
-	// connection
-	Connection connection = 2;
+    // connection settings
+    message Connection {
+        // data source name
+        string dsn = 1;
+    }
+    // connection
+    Connection connection = 2;
 }

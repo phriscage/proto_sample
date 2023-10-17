@@ -24,25 +24,25 @@ SOFTWARE.
 package ctl
 
 import (
-	"os"
-	"strconv"
+    "os"
+    "strconv"
 )
 
 // getEnvOrString function for to parse string environment variables
 func getEnvOrString(key string, defaultVal string) string {
-	if val, ok := os.LookupEnv(key); ok {
-		return val
-	}
-	return defaultVal
+    if val, ok := os.LookupEnv(key); ok {
+        return val
+    }
+    return defaultVal
 }
 
 // getEnvOrBool function for to parse bool environment variables
 func getEnvOrBool(key string, defaultVal bool) bool {
-	if val, ok := os.LookupEnv(key); ok {
-		b, _ := strconv.ParseBool(val)
-		return b
-	}
-	return defaultVal
+    if val, ok := os.LookupEnv(key); ok {
+        b, _ := strconv.ParseBool(val)
+        return b
+    }
+    return defaultVal
 }
 
 // function for parse slice environment variables

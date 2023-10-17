@@ -24,56 +24,56 @@ SOFTWARE.
 package ctl
 
 import (
-	"context"
-	"time"
+    "context"
+    "time"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
+    log "github.com/sirupsen/logrus"
+    "github.com/spf13/cobra"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/metadata"
 
-	pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
+    pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
 
 // bookGetCmd is the management command
 var bookGetCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Sample CTL book get command",
-	Long:  `The Sample CTL book get command will perform book get operations.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Infof("Starting bookGetCmd...")
+    Use:   "get",
+    Short: "Sample CTL book get command",
+    Long:  `The Sample CTL book get command will perform book get operations.`,
+    Run: func(cmd *cobra.Command, args []string) {
+        log.Infof("Starting bookGetCmd...")
 
-		conn, err := newGRPCClientConn(tls, serverCAFile, serverAddr)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer conn.Close()
-		c := pb.NewSampleServiceClient(conn)
-		book, err := getBook(c, &pb.GetBookRequest{Name: bookName})
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Debugf("%#v", book)
+        conn, err := newGRPCClientConn(tls, serverCAFile, serverAddr)
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer conn.Close()
+        c := pb.NewSampleServiceClient(conn)
+        book, err := getBook(c, &pb.GetBookRequest{Name: bookName})
+        if err != nil {
+            log.Fatal(err)
+        }
+        log.Debugf("%#v", book)
 
-		log.Infof("Finished bookGetCmd.")
-	},
+        log.Infof("Finished bookGetCmd.")
+    },
 }
 
 // getBook gets the Book from the server
 func getBook(c pb.SampleServiceClient, req *pb.GetBookRequest) (*pb.Book, error) {
-	log.Debugf("Getting Book for (%s)", req)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	var header, trailer metadata.MD // var to store header and trailer
-	resp, err := c.GetBook(ctx, req, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		log.Warnf("%#v.getBook(_) = _, %v: ", c, err)
-		return nil, err
-	}
-	return resp, nil
+    log.Debugf("Getting Book for (%s)", req)
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+    var header, trailer metadata.MD // var to store header and trailer
+    resp, err := c.GetBook(ctx, req, grpc.Header(&header), grpc.Trailer(&trailer))
+    if err != nil {
+        log.Warnf("%#v.getBook(_) = _, %v: ", c, err)
+        return nil, err
+    }
+    return resp, nil
 }
 
 // init
 func init() {
-	bookCmd.AddCommand(bookGetCmd)
+    bookCmd.AddCommand(bookGetCmd)
 }

@@ -24,20 +24,20 @@ SOFTWARE.
 package ctl
 
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/spf13/cobra"
+    "github.com/spf13/cobra"
 )
 
 // versionCmd subcommand for the client version
 var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Show client version",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(rootCmd.Use + " " + VERSION)
-	},
+    Use:   "version",
+    Short: "Show client version",
+    Run: func(cmd *cobra.Command, args []string) {
+        fmt.Println(rootCmd.Use + " " + VERSION)
+    },
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+    rootCmd.AddCommand(versionCmd)
 }

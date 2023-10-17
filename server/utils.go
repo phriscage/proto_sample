@@ -24,27 +24,27 @@ SOFTWARE.
 package main
 
 import (
-	"os"
-	"strconv"
+    "os"
+    "strconv"
 
-	"github.com/google/uuid"
+    "github.com/google/uuid"
 )
 
 // getEnvOrString function for to parse string environment variables
 func getEnvOrString(key string, defaultVal string) string {
-	if val, ok := os.LookupEnv(key); ok {
-		return val
-	}
-	return defaultVal
+    if val, ok := os.LookupEnv(key); ok {
+        return val
+    }
+    return defaultVal
 }
 
 // getEnvOrBool function for to parse bool environment variables
 func getEnvOrBool(key string, defaultVal bool) bool {
-	if val, ok := os.LookupEnv(key); ok {
-		b, _ := strconv.ParseBool(val)
-		return b
-	}
-	return defaultVal
+    if val, ok := os.LookupEnv(key); ok {
+        b, _ := strconv.ParseBool(val)
+        return b
+    }
+    return defaultVal
 }
 
 // function for parse slice environment variables
@@ -52,16 +52,16 @@ func getEnvOrBool(key string, defaultVal bool) bool {
 
 // create a new UUID v4 string
 func createUUIDv4() string {
-	u, _ := uuid.NewRandom()
-	return u.String()
+    u, _ := uuid.NewRandom()
+    return u.String()
 }
 
 // remove string from slice
 func remove(s []string, r string) []string {
-	for i, v := range s {
-		if v == r {
-			return append(s[:i], s[i+1:]...)
-		}
-	}
-	return s
+    for i, v := range s {
+        if v == r {
+            return append(s[:i], s[i+1:]...)
+        }
+    }
+    return s
 }

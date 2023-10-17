@@ -24,68 +24,68 @@ SOFTWARE.
 package ctl
 
 import (
-	"context"
-	"time"
+    "context"
+    "time"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
+    log "github.com/sirupsen/logrus"
+    "github.com/spf13/cobra"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/metadata"
 
-	pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
+    pb "github.com/phriscage/proto_sample/gen/go/sample/v1alpha"
 )
 
 // These are defined at the top-level command
 var (
-	bookTitle string
-	// authors []*pb.Author // TODO add Authors for command line
+    bookTitle string
+    // authors []*pb.Author // TODO add Authors for command line
 )
 
 // bookCreateCmd is the management command
 var bookCreateCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Sample CTL book create command",
-	Long:  `The Sample CTL book create command will create a book.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Infof("Starting bookCreateCmd...")
+    Use:   "create",
+    Short: "Sample CTL book create command",
+    Long:  `The Sample CTL book create command will create a book.`,
+    Run: func(cmd *cobra.Command, args []string) {
+        log.Infof("Starting bookCreateCmd...")
 
-		conn, err := newGRPCClientConn(tls, serverCAFile, serverAddr)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer conn.Close()
-		c := pb.NewSampleServiceClient(conn)
-		resp, err := createBook(c, &pb.CreateBookRequest{
-			Book: &pb.Book{
-				Name:  bookName,
-				Title: bookTitle,
-			},
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Debugf("%#v", resp)
+        conn, err := newGRPCClientConn(tls, serverCAFile, serverAddr)
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer conn.Close()
+        c := pb.NewSampleServiceClient(conn)
+        resp, err := createBook(c, &pb.CreateBookRequest{
+            Book: &pb.Book{
+                Name:  bookName,
+                Title: bookTitle,
+            },
+        })
+        if err != nil {
+            log.Fatal(err)
+        }
+        log.Debugf("%#v", resp)
 
-		log.Infof("Finished createBooks")
-	},
+        log.Infof("Finished createBooks")
+    },
 }
 
 // createBook gets the Book from the server
 func createBook(c pb.SampleServiceClient, req *pb.CreateBookRequest) (*pb.CreateBookResponse, error) {
-	log.Debugf("Creating Book for (%s)", req)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	var header, trailer metadata.MD // var to store header and trailer
-	resp, err := c.CreateBook(ctx, req, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		log.Warnf("%#v.createBook(_) = _, %v: ", c, err)
-		return nil, err
-	}
-	return resp, nil
+    log.Debugf("Creating Book for (%s)", req)
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+    var header, trailer metadata.MD // var to store header and trailer
+    resp, err := c.CreateBook(ctx, req, grpc.Header(&header), grpc.Trailer(&trailer))
+    if err != nil {
+        log.Warnf("%#v.createBook(_) = _, %v: ", c, err)
+        return nil, err
+    }
+    return resp, nil
 }
 
 // init
 func init() {
-	bookCreateCmd.Flags().StringVar(&bookTitle, "bookTitle", "", "Book title")
-	bookCmd.AddCommand(bookCreateCmd)
+    bookCreateCmd.Flags().StringVar(&bookTitle, "bookTitle", "", "Book title")
+    bookCmd.AddCommand(bookCreateCmd)
 }
