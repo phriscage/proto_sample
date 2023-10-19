@@ -74,7 +74,7 @@ message Database {
     // provider type
     enum Provider {
         UNKNOWN = 0; // default
-        SQLITE = 1;
+        SQLITE3 = 1;
         POSTGRESQL = 2;
     }
     // provider

@@ -42,6 +42,7 @@ import (
     "google.golang.org/grpc/codes"
     "google.golang.org/grpc/status"
     "google.golang.org/protobuf/types/known/emptypb"
+    "google.golang.org/grpc/reflection"
 
     // TODO Using GROM v2 requires protoc-gen-gorm to update
     // dependencies [here](https://github.com/infobloxopen/protoc-gen-gorm/issues/243)
@@ -61,7 +62,7 @@ var (
     host                  = flag.String("host", getEnvOrString("HOST", "127.0.0.1"), "The server host ip")
     logSeverity           = flag.String("log_severity", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity")
     environment           = flag.String("environment", getEnvOrString("ENVIRONMENT", "development"), "Set the environment name")
-    databaseProvider      = flag.String("database_provider", getEnvOrString("DATABASE_PROVIDER", "sqlite3"), "Set the Database provider type")
+    databaseProvider      = flag.String("database_provider", getEnvOrString("DATABASE_PROVIDER", "SQLITE3"), "Set the Database provider type")
     databaseConnectionDsn = flag.String("database_connection_dsn", getEnvOrString("DATABASE_CONNECTION_DSN", "abc://123"), "Set the Database Connection DSN")
 )
 
@@ -122,7 +123,7 @@ func newSampleServer(cfg *pb.Config) *sampleServer {
     provider := s.getCfg().GetDatabase().GetProvider()
     var db *gorm.DB
     var err error
-    if provider.String() == "SQLITE" {
+    if provider.String() == "SQLITE3" {
         // db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{}) // GORM v2
         db, err = gorm.Open("sqlite3", dsn)
         // TODO add PostgreSQL support
@@ -131,7 +132,7 @@ func newSampleServer(cfg *pb.Config) *sampleServer {
         log.Fatalf("pb.Config.Database.Provider not configured")
     }
     if err != nil {
-        log.Fatal(err)
+        log.Fatalf("%v: '%v'", err, dsn)
     }
     s.db = db
     db.LogMode(false)
@@ -318,6 +319,8 @@ func main() {
     }
     //pb.RegisterSampleServiceServer(grpcServer)
     pb.RegisterSampleServiceServer(grpcServer, newSampleServer(cfg))
+    // grpc reflection enabled
+    reflection.Register(grpcServer)
     if err = grpcServer.Serve(lis); err != nil {
         log.Fatal(err)
     }

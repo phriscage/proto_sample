@@ -11,7 +11,7 @@ This directory conatins all the relevant database information and files.
 
 # Data Model
 
-The data model is primarily mapped to the protobuf definitions and source of truth for data tables and fields. 
+The data model is primarily mapped to the protobuf definitions and source of truth for data tables and fields.
 
 ## Protobuf sync
 
@@ -44,13 +44,13 @@ Create the migration files in the [migrations](./migrations/) directory with *sq
 
 ## Migrate
 
-Migrate the database migration files based on the database storage engine. 
+Migrate the database migration files based on the database storage engine.
 
 sqlite3
 
-    mkdir -p sqlite
+    mkdir -p data/sqlite
 
-    migrate -source file://migrations/sqlite -database sqlite3://sqlite/data.db up
+    migrate -source file://migrations/sqlite -database sqlite3://data/sqlite/data.db up
 
 PostgreSQL
 
@@ -61,17 +61,17 @@ Validate the schema is correct
 
 sqlite3
 
-    sqlite3 db/sqlite/data.db '.schema'
+    sqlite3 data/sqlite/data.db '.schema'
 
 PostgreSQL
 
 
-# Samples Queries 
+# Samples Queries
 
 Run a sample query
 
 sqlite3
 
-    sqlite3 db/sqlite/data.db '.mode json' "SELECT * FROM books;
+    sqlite3 data/sqlite/data.db '.mode json' "SELECT * FROM books;
 
 PostgreSQL

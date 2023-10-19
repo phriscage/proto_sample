@@ -16,6 +16,18 @@ This Proto Sample repository showcases a sample protobuf data model and generati
 
 # Quick Start
 
+Install the `grpcurl` CLI to your local machine
+
+    $ brew install grpcurl
+
+List available services
+
+    $ grpcurl -plaintext localhost:10000 list
+
+List all methods of an available service
+
+    $ grpcurl -plaintext localhost:10000 list sample.v1alpha.SampleService
+
 ## Setup
 
 ## Client
@@ -29,6 +41,12 @@ First, verify you have golang >= 1.20.x installed, or download from [Go.dev](htt
 
     $ go version
     go version go1.20 linux/amd64
+
+Set the GO_PATH environment variables in you shell profile config after install:
+
+    echo "export GO_PATH=~/go" >> ~/.bash_profile
+    echo "export PATH=$PATH:/$GO_PATH/bin" >> ~/.bash_profile
+    source ~/.bash_profile
 
 Next, clone or download this project and download the package dependencies
 
@@ -61,7 +79,7 @@ Install Go plugins:
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
     go install github.com/infobloxopen/protoc-gen-gorm@latest
 
-Download protobuf 3P build dependencies: 
+Download protobuf 3P build dependencies:
 _TODO_ Add [Buf](https://buf.build/) to streamline proto build process
 *Make directories*
 
@@ -71,7 +89,7 @@ _TODO_ Add [Buf](https://buf.build/) to streamline proto build process
 
     git clone https://github.com/googleapis/googleapis third_party/googleapis
 
-*GORM* 
+*GORM*
 
     git clone https://github.com/infobloxopen/protoc-gen-gorm third_party/protoc-gen-gorm
 
@@ -88,7 +106,7 @@ Generate libraries:
 
     protoc -I proto -I third_party/googleapis -I third_party/protoc-gen-gorm --go_out ./gen/go/ --go_opt paths=source_relative --go-grpc_out ./gen/go/ --go-grpc_opt paths=source_relative proto/sample/v1alpha/*.proto
 
-*GROM* 
+*GROM*
 
     protoc -I proto -I third_party/googleapis -I third_party/protoc-gen-gorm --gorm_out ./gen/go/ --gorm_opt paths=source_relative proto/sample/v1alpha/*.proto
 
@@ -97,13 +115,22 @@ Generate libraries:
     protoc -I temp -I third_party/protoc-gen-bq-schema --bq-schema_out=temp/bq_schema temp/bq_schema/foo.proto
 
 
-## Clients
+## Executables
 
-Generate the CLI binary executable client:
+Generate the Server and CLI binary executable client:
 
 Create the [/bin](./bin) directory and export in the PATH environment variable:
 
     mkdir -p bin && export PATH=$PATH:${PWD}/bin
+
+
+Build the server
+
+    GO111MODULE=on go build -o bin/samplesrv ./server/.
+
+Test
+
+    samplesrv -h
 
 
 Build the client
@@ -113,5 +140,3 @@ Build the client
 Test
 
     samplectl -h
-
-
