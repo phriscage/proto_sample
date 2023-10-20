@@ -16,7 +16,17 @@ This Proto Sample repository showcases a sample protobuf data model and generati
 
 # Quick Start
 
-Install the `grpcurl` CLI to your local machine
+## Deployment
+
+Build server and deploy (or run manually via [Development](#development) example below)
+
+## Validation
+
+You can use either the [grpcurl](#grpcurl-client) or the [samplectl](#samplectl-client) client CLI to validate and communicate with the gRPC server. Both clients leverage the same gRPC server APIs.
+
+### grpcurl client
+
+Install the `grpcurl` CLI to your local machine to communicate with the gRPC server
 
     $ brew install grpcurl
 
@@ -24,13 +34,21 @@ List available services
 
     $ grpcurl -plaintext localhost:10000 list
 
-List all methods of an available service
+List all methods of an available services
+
+_*Note*_ You will need the service proto files and their import directories for dependencies for reflection to work
+
+    $  grpcurl -plaintext -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 list sample.v1alpha.SampleService
 
     $ grpcurl -plaintext localhost:10000 list sample.v1alpha.SampleService
 
-## Setup
+### samplectl client
 
-## Client
+Install the `samplectl` CLI client to your local machine to communicate the gRPC server. Follow the directions via [Executables](#executables) below
+
+List the help for the client
+
+    $ sampletlctl -h
 
 
 # Development
