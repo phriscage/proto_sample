@@ -8,7 +8,15 @@
 
 # Overview
 
-This Proto Sample repository showcases a sample protobuf data model and generating language libraries and CLI binary executable client.
+This Proto Sample repository showcases a pseudo type-driven data model first, appliacation design with the following features:
+
+* A sample protobuf data model
+* gRPC service interface
+* generating language specific libraries
+* binary CLI executable client
+* client examples
+
+The gRPC service's interface, method, and REST transcoded resources follow the Google Cloud API and API Improvement Proposals naming standards ([here](https://cloud.google.com/apis/design/naming_convention) and [here](https://google.aip.dev/))
 
 
 # Architecture
@@ -18,35 +26,52 @@ This Proto Sample repository showcases a sample protobuf data model and generati
 
 ## Deployment
 
-Build server and deploy (or run manually via [Development](#development) example below)
+Deploy the gRPC server (TBD) or build the `samplesrv` [server]('./server') executable locally via [Executables](#executables) below
+
 
 ## Validation
 
-You can use either the [grpcurl](#grpcurl-client) or the [samplectl](#samplectl-client) client CLI to validate and communicate with the gRPC server. Both clients leverage the same gRPC server APIs.
+After you have an instance of the gRPC server running, you can use either the [grpcurl](#grpcurl-client) or the [samplectl](#samplectl-client) CLI clients to validate and communicate with the gRPC server interface methods. Both clients leverage the same gRPC server interfeace API methods defined in the [sample_service.proto](./proto/sample/v1alpha/sample_service.proto)
 
 ### grpcurl client
 
-Install the `grpcurl` CLI to your local machine to communicate with the gRPC server
+**tl;dr** From [grpcurl](https://github.com/fullstorydev/grpcurl):
+> grpcurl is a command-line tool that lets you interact with gRPC servers. It's basically curl for gRPC servers.
+
+Install the `grpcurl` CLI to your local machine to communicate with the gRPC server. eg. OSX
 
     $ brew install grpcurl
 
-List available services
+List available gRPC server services (via reflection)
 
     $ grpcurl -plaintext localhost:10000 list
 
-List all methods of an available services
+List all methods of an available service(s) (via reflection)
 
-_*Note*_ You will need the service proto files and their import directories for dependencies for reflection to work
+_*Note*_ You will need the service proto files (and import the directories of the proto dependencies) for the gRPC server service reflection to work
 
-    $  grpcurl -plaintext -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 list sample.v1alpha.SampleService
+    $ grpcurl -plaintext -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 list sample.v1alpha.SampleService
 
-    $ grpcurl -plaintext localhost:10000 list sample.v1alpha.SampleService
+#### Sample interface methods
+
+Try out some of the gRPC interface methods with `grpcurl`:
+
+GetBook:
+
+    $ grpcurl -plaintext -d '{"name": "123"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/GetBook
+
+CreateBook:
+
+    $ grpcurl -plaintext -d '{"book": {"name": "123"} }' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/CreateBook
+
+ListBooks:
+
 
 ### samplectl client
 
-Install the `samplectl` CLI client to your local machine to communicate the gRPC server. Follow the directions via [Executables](#executables) below
+Install the `samplectl` CLI client on your local machine to communicate with the gRPC server. Follow the directions via [Executables](#executables) below to build & install locally.
 
-List the help for the client
+List the help for the CLI client
 
     $ sampletlctl -h
 
