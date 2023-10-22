@@ -8,12 +8,12 @@
 
 # Overview
 
-This Proto Sample repository showcases a pseudo type-driven data model first, appliacation design with the following features:
+This Proto Sample repository showcases a pseudo type-driven, data model first, application design approach with the following features:
 
 * A sample protobuf data model
 * gRPC service interface
 * generating language specific libraries
-* binary CLI executable client
+* executable CLI client
 * client examples
 
 The gRPC service's interface, method, and REST transcoded resources follow the Google Cloud API and API Improvement Proposals naming standards ([here](https://cloud.google.com/apis/design/naming_convention) and [here](https://google.aip.dev/))
@@ -26,12 +26,20 @@ The gRPC service's interface, method, and REST transcoded resources follow the G
 
 ## Deployment
 
-Deploy the gRPC server (TBD) or build the `samplesrv` [server]('./server') executable locally via [Executables](#executables) below
+Build & deploy the components in a kubneretes environemnt (TBD) or separately on your local machine
+
+### Kubernetes
+
+TBD - placeholder for kubernetes-manifests and helm/deployment
+
+### Separately
+
+Follow instructions in the [Development](#development) section below.
 
 
 ## Validation
 
-After you have an instance of the gRPC server running, you can use either the [grpcurl](#grpcurl-client) or the [samplectl](#samplectl-client) CLI clients to validate and communicate with the gRPC server interface methods. Both clients leverage the same gRPC server interfeace API methods defined in the [sample_service.proto](./proto/sample/v1alpha/sample_service.proto)
+After you have an instance of the gRPC server running, you can use either the [grpcurl](#grpcurl-client) or the [samplectl](#samplectl-client) executable CLI client to validate and communicate with the gRPC server interface methods. Both clients leverage the same gRPC server interfeace API methods defined in the [sample_service.proto](./proto/sample/v1alpha/sample_service.proto)
 
 ### grpcurl client
 
@@ -69,16 +77,23 @@ ListBooks:
 
 ### samplectl client
 
-Install the `samplectl` CLI client on your local machine to communicate with the gRPC server. Follow the directions via [Executables](#executables) below to build & install locally.
+Install the `samplectl` exutable CLI client on your local machine to communicate with the gRPC server. Follow the directions for [CLI client](#cli-client) below to build & install locally. You ma
 
-List the help for the CLI client
+List the help for the client
 
     $ sampletlctl -h
 
 
 # Development
 
-Install the Proto Sample executable on a local development machine to test the functionality and generate the appropriate libraries.
+Setup a local development environemnt to build the Proto Sample executables to test the functionality and generate the appropriate libraries. You will need to following prerequisites:
+
+* Golang
+* proto files
+* database
+* server & client executables
+
+## Golang
 
 First, verify you have golang >= 1.20.x installed, or download from [Go.dev](https://go.dev/dl/)
 
@@ -157,15 +172,19 @@ Generate libraries:
 
     protoc -I temp -I third_party/protoc-gen-bq-schema --bq-schema_out=temp/bq_schema temp/bq_schema/foo.proto
 
+## Database
+
+Follow instructions in the [db/README](db/README.md)
 
 ## Executables
 
-Generate the Server and CLI binary executable client:
+Generate the gRPC server and executable CLI client.
 
 Create the [/bin](./bin) directory and export in the PATH environment variable:
 
     mkdir -p bin && export PATH=$PATH:${PWD}/bin
 
+### gRPC server
 
 Build the server
 
@@ -175,6 +194,7 @@ Test
 
     samplesrv -h
 
+### CLI client
 
 Build the client
 
