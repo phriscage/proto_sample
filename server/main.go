@@ -63,7 +63,7 @@ var (
     logSeverity           = flag.String("log_severity", getEnvOrString("LOG_SEVERITY", "INFO"), "Set the log severity")
     environment           = flag.String("environment", getEnvOrString("ENVIRONMENT", "development"), "Set the environment name")
     databaseProvider      = flag.String("database_provider", getEnvOrString("DATABASE_PROVIDER", "SQLITE3"), "Set the Database provider type")
-    databaseConnectionDsn = flag.String("database_connection_dsn", getEnvOrString("DATABASE_CONNECTION_DSN", "abc://123"), "Set the Database Connection DSN")
+    databaseConnectionDsn = flag.String("database_connection_dsn", getEnvOrString("DATABASE_CONNECTION_DSN", "file:abc/123"), "Set the Database Connection DSN")
 )
 
 // Sample Server object that includes the configurations
@@ -236,6 +236,53 @@ func (s *sampleServer) CreateBook(ctx context.Context, req *pb.CreateBookRequest
         return &pb.CreateBookResponse{StatusMessage: codes.Internal.String()}, status.Error(codes.Internal, fmt.Sprint("Internal Server Error"))
     }
     return &pb.CreateBookResponse{StatusMessage: codes.OK.String()}, status.Error(codes.OK, codes.OK.String())
+}
+
+// ListBooks method
+func (s *sampleServer) ListBooks(ctx context.Context, req *pb.ListBooksRequest) (*pb.ListBooksResponse, error) {
+    log.Infof("Starting ListBooks...")
+    var errMsg string
+    var err error
+    if req == nil {
+        errMsg = fmt.Sprintf("Request is not valid")
+        return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.InvalidArgument, errMsg)
+    }
+    provider := s.getCfg().GetDatabase().GetProvider()
+    books := []*pb.BookORM{}
+    if err != nil {
+        log.Errorf("%s: %s", provider, err)
+        errMsg = fmt.Sprintf("Internal Server Error")
+        return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.Internal, errMsg)
+    }
+    var results *gorm.DB
+    if req.GetNamePrefix() != "" {
+      filter := req.GetNamePrefix()
+      results = s.db.Where("name LIKE ?", fmt.Sprintf("%s%%", filter)).Find(&books)
+      log.Debugf("%#v", results)
+    } else {
+      results = s.db.Find(&books)
+    }
+    if results.Error != nil {
+        log.Errorf("%s: %s", provider, results.Error)
+        errMsg = fmt.Sprintf("Internal Server Error")
+        return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.Internal, errMsg)
+    }
+    if results.RowsAffected == 0 {
+       errMsg = fmt.Sprintf("Does not exist")
+       return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.NotFound, errMsg)
+    }
+    // Need to convert back to proto from ORM struct
+    pbBooks := make([]*pb.Book, 0)
+    for _, b := range books {
+      pbBook, err := b.ToPB(ctx)
+      if err != nil {
+        log.Errorf("%s: %s", provider, err)
+        errMsg = fmt.Sprintf("Internal Server Error")
+        return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.Internal, errMsg)
+      }
+      pbBooks = append(pbBooks, &pbBook)
+    }
+    return &pb.ListBooksResponse{StatusMessage: codes.OK.String(), Books: pbBooks}, status.Error(codes.OK, codes.OK.String())
 }
 
 // Init

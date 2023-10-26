@@ -11,8 +11,8 @@
 This Proto Sample repository showcases a pseudo type-driven, data model first, application design approach with the following features:
 
 * A sample protobuf data model
-* gRPC service interface
 * generating language specific libraries
+* gRPC service interface
 * executable CLI client
 * client examples
 
@@ -73,6 +73,8 @@ CreateBook:
     $ grpcurl -plaintext -d '{"book": {"name": "123"} }' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/CreateBook
 
 ListBooks:
+
+    $ grpcurl -plaintext -d '{"name_prefix": "1234"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/ListBooks
 
 
 ### samplectl client
