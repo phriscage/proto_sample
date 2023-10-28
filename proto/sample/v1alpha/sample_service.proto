@@ -48,7 +48,7 @@ service SampleService {
     // Creates the Config
     rpc CreateConfig(CreateConfigRequest) returns (CreateConfigResponse) {
         // Client Example:
-        //     curl -d '{"name": "my-sample-config", "environment": "development", ...}' 
+        //     curl -d '{"name": "my-sample-config", "environment": "development", ...}'
         option (google.api.http) = {
             post: "/v1alpha/config"
             body: "config"
@@ -67,7 +67,7 @@ service SampleService {
     // Creates a Book
     rpc CreateBook(CreateBookRequest) returns (CreateBookResponse) {
         // Client Example:
-        //     curl -d '{"name": "my-sample-book", "environment": "development", ...}' 
+        //     curl -d '{"name": "my-sample-book", "environment": "development", ...}'
         option (google.api.http) = {
             post: "/v1alpha/books"
             body: "book"
@@ -81,7 +81,7 @@ service SampleService {
     // List Books
     rpc ListBooks(ListBooksRequest) returns (ListBooksResponse) {
         // Client Example:
-        //     curl /books' 
+        //     curl /books'
         option (google.api.http) = {
             get: "/v1alpha/books"
         };
@@ -90,8 +90,8 @@ service SampleService {
 
 // Request message for CreateConfig method
 message CreateConfigRequest {
-    // Specifiy the system environment config 
-    Config config = 1 [(google.api.field_behavior) = REQUIRED]; 
+    // Specifiy the system environment config
+    Config config = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Request response for CreateConfig method
@@ -109,7 +109,7 @@ message GetBookRequest {
 // Request message for CreateBook method
 message CreateBookRequest {
     // Specifiy the Book fields
-    Book book = 1 [(google.api.field_behavior) = REQUIRED]; 
+    Book book = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Request response for CreateBook method
@@ -119,14 +119,30 @@ message CreateBookResponse {
 
 // Request message for ListBooks method
 message ListBooksRequest {
-    // Specifiy the Book name prefix. Matches with wildcard at the end
-    string name_prefix = 1; 
+    // Specify the Book name prefix. Matches with wildcard at the end
+    string name_prefix = 1;
+    enum OrderBy {
+        DEFAULT = 0;
+        NAME = 1;
+        CREATED_AT = 2;
+    }
+    // Specify the Order By enum to sort the results by column to be returned by the server.
+    OrderBy order_by = 2;
+    // Specify the maximum number of results to be returned by the server.
+    // If the page_size is 0, the server will decide the number of results to be returned.
+    int32 page_size = 3;
+    // This field represents the pagination token to retrieve the next page of results.
+    string page_token = 4;
 }
 
 // Request response for ListBooks method
 message ListBooksResponse {
     string status_message = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
     // List of Books matching ListBooksRequest filter
-    repeated Book books = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    repeated Book items = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // This field represents the pagination token to retrieve the next page of results.
+    // If the value is "", it means no further results for the request.
+    string next_page_token = 3;
+    // The total count of items
+    uint32 total_size = 4;
 }

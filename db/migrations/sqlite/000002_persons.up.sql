@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `persons` (
     `id` VARCHAR(36) NOT NULL PRIMARY KEY,
       `name` VARCHAR(255) NOT NULL,
-      `email` VARCHAR(255),
+      `email` VARCHAR(255) UNIQUE,
       `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

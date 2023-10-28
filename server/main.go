@@ -182,7 +182,7 @@ func (x *sampleServer) validateCfg() error {
 func (s *sampleServer) GetConfig(ctx context.Context, _ *emptypb.Empty) (*pb.Config, error) {
     log.Infof("Starting GetConfig...")
     if s.getCfg() == nil {
-        return &pb.Config{}, status.Error(codes.NotFound, fmt.Sprintf("Does not exist"))
+        return &pb.Config{}, status.Error(codes.NotFound, codes.NotFound.String())
     }
     return s.getCfg(), status.Error(codes.OK, codes.OK.String())
 }
@@ -191,7 +191,7 @@ func (s *sampleServer) GetConfig(ctx context.Context, _ *emptypb.Empty) (*pb.Con
 func (s *sampleServer) GetBook(ctx context.Context, req *pb.GetBookRequest) (*pb.Book, error) {
     log.Infof("Starting GetBook...")
     if req == nil && req.GetName() == "" {
-        return &pb.Book{}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
+        return &pb.Book{}, status.Error(codes.InvalidArgument, codes.InvalidArgument.String())
     }
     provider := s.getCfg().GetDatabase().GetProvider()
     pbBook := pb.Book{Name: req.GetName()}
@@ -202,7 +202,7 @@ func (s *sampleServer) GetBook(ctx context.Context, req *pb.GetBookRequest) (*pb
     }
     if err := s.db.Where(&pbBook).First(&book).Error; err != nil {
         log.Warnf("%s: %s", provider, err)
-        return &pb.Book{}, status.Error(codes.NotFound, fmt.Sprintf("Does not exist"))
+        return &pb.Book{}, status.Error(codes.NotFound, codes.NotFound.String())
     }
     pbBook, err = book.ToPB(ctx)
     if err != nil {
@@ -217,19 +217,21 @@ func (s *sampleServer) CreateBook(ctx context.Context, req *pb.CreateBookRequest
     log.Infof("Starting CreateBook...")
     // Name, authors [Person], title
     if req == nil || req.GetBook() == nil {
-        return &pb.CreateBookResponse{StatusMessage: "Request is not valid"}, status.Error(codes.InvalidArgument, fmt.Sprintf("Request is not valid"))
+        return &pb.CreateBookResponse{StatusMessage: codes.InvalidArgument.String()}, status.Error(codes.InvalidArgument, codes.InvalidArgument.String())
     }
     provider := s.getCfg().GetDatabase().GetProvider()
     pbBook := req.GetBook()
     book, err := pbBook.ToORM(ctx)
-    book.Id = createUUIDv4()
     if err != nil {
         log.Errorf("%s: %s", provider, err)
         return &pb.CreateBookResponse{StatusMessage: codes.Internal.String()}, status.Error(codes.Internal, fmt.Sprint("Internal Server Error"))
     }
+    // Check if the new Book exists in the database by name
     if err := s.db.Where(&pbBook).First(&book).Error; err == nil {
         return &pb.CreateBookResponse{StatusMessage: codes.AlreadyExists.String()}, status.Error(codes.AlreadyExists, codes.AlreadyExists.String())
     }
+    // Create the new Book in the database
+    book.Id = createUUIDv4()
     log.Debug(spew.Sprintf("%#v", book))
     if err := s.db.Create(&book).Error; err != nil {
         log.Errorf("%s: %s", provider, err)
@@ -244,8 +246,7 @@ func (s *sampleServer) ListBooks(ctx context.Context, req *pb.ListBooksRequest) 
     var errMsg string
     var err error
     if req == nil {
-        errMsg = fmt.Sprintf("Request is not valid")
-        return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.InvalidArgument, errMsg)
+        return &pb.ListBooksResponse{StatusMessage: codes.InvalidArgument.String()}, status.Error(codes.InvalidArgument, codes.InvalidArgument.String())
     }
     provider := s.getCfg().GetDatabase().GetProvider()
     books := []*pb.BookORM{}
@@ -268,8 +269,7 @@ func (s *sampleServer) ListBooks(ctx context.Context, req *pb.ListBooksRequest) 
         return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.Internal, errMsg)
     }
     if results.RowsAffected == 0 {
-       errMsg = fmt.Sprintf("Does not exist")
-       return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.NotFound, errMsg)
+       return &pb.ListBooksResponse{StatusMessage: codes.NotFound.String()}, status.Error(codes.NotFound, errMsg)
     }
     // Need to convert back to proto from ORM struct
     pbBooks := make([]*pb.Book, 0)
@@ -282,7 +282,13 @@ func (s *sampleServer) ListBooks(ctx context.Context, req *pb.ListBooksRequest) 
       }
       pbBooks = append(pbBooks, &pbBook)
     }
-    return &pb.ListBooksResponse{StatusMessage: codes.OK.String(), Books: pbBooks}, status.Error(codes.OK, codes.OK.String())
+    totalSize := uint32(results.RowsAffected)
+    return &pb.ListBooksResponse{
+      StatusMessage: codes.OK.String(),
+      Items: pbBooks,
+      TotalSize: totalSize,
+      },
+      status.Error(codes.OK, codes.OK.String())
 }
 
 // Init
