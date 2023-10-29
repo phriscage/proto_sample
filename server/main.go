@@ -24,7 +24,7 @@ SOFTWARE.
 package main
 
 import (
-    "context"
+		"context"
     "flag"
     "fmt"
     "net"
@@ -256,22 +256,29 @@ func (s *sampleServer) ListBooks(ctx context.Context, req *pb.ListBooksRequest) 
         return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.Internal, errMsg)
     }
     var results *gorm.DB
-    if req.GetNamePrefix() != "" {
-      filter := req.GetNamePrefix()
-      results = s.db.Where("name LIKE ?", fmt.Sprintf("%s%%", filter)).Find(&books)
-      log.Debugf("%#v", results)
-    } else {
-      results = s.db.Find(&books)
-    }
+		// Build SQL query with some validation
+		orderBy := req.GetOrderBy().String()
+		if req.GetOrderBy().String() == "ORDER_BY_UNSPECIFIED" {
+			orderBy = "CREATED_AT"
+		}
+		orderByDir := req.GetOrderByDirection().String()
+		if req.GetOrderByDirection().String() == "ORDER_BY_DIRECTION_UNSPECIFIED" {
+			orderByDir = "DESC"
+		}
+		order := fmt.Sprintf("%s %s", orderBy, orderByDir)
+    filter := fmt.Sprintf("%s%%", req.GetNamePrefix())
+		// Execute the Query
+		// TODO add gorm SQL output log debugger
+    results = s.db.Where("name LIKE ?", filter).Order(order).Find(&books)
     if results.Error != nil {
         log.Errorf("%s: %s", provider, results.Error)
         errMsg = fmt.Sprintf("Internal Server Error")
         return &pb.ListBooksResponse{StatusMessage: errMsg}, status.Error(codes.Internal, errMsg)
     }
     if results.RowsAffected == 0 {
-       return &pb.ListBooksResponse{StatusMessage: codes.NotFound.String()}, status.Error(codes.NotFound, errMsg)
+       return &pb.ListBooksResponse{StatusMessage: codes.NotFound.String()}, status.Error(codes.NotFound, codes.NotFound.String())
     }
-    // Need to convert back to proto from ORM struct
+    // Need to convert back to proto from ORM struct for response
     pbBooks := make([]*pb.Book, 0)
     for _, b := range books {
       pbBook, err := b.ToPB(ctx)
@@ -314,9 +321,35 @@ func main() {
         // Enable TLS for all incoming connections.
         //grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
     }
+    // Config init and validation
+		// Logging
+    logSeverityLevelVal, ok := pb.Logging_SeverityLevel_value[*logSeverity]
+    if !ok {
+        logSeverityLevels := remove(maps.Values(pb.Logging_SeverityLevel_name), "SEVERITY_LEVEL_UNKNOWN")
+        log.Fatalf("pb.Config.Logging.SeverityLevel is not a valid name: '%s'", logSeverityLevels)
+    }
     if level, ok := log.ParseLevel(*logSeverity); ok == nil {
         log.SetLevel(level)
     }
+		// Database
+    dbProviderVal, ok := pb.Database_Provider_value[*databaseProvider]
+    if !ok {
+        providers := remove(maps.Values(pb.Database_Provider_name), "UNKNOWN")
+        log.Fatalf("pb.Config.Database.Provider is not a valid name: '%s'", providers)
+    }
+    cfg := &pb.Config{
+        Environment: *environment,
+        Database: &pb.Database{
+            Provider: pb.Database_Provider(dbProviderVal),
+            Connection: &pb.Database_Connection{
+                Dsn: *databaseConnectionDsn,
+            },
+        },
+        Logging: &pb.Logging{
+          SeverityLevel: pb.Logging_SeverityLevel(logSeverityLevelVal),
+				},
+		}
+		// Host & port
     host_port := fmt.Sprintf("%s:%d", *host, *port)
     lis, err := net.Listen("tcp", host_port)
     if err != nil {
@@ -354,22 +387,6 @@ func main() {
     log.Infof("Starting grpc server on '%s'", host_port)
     grpcServer := grpc.NewServer(append(defaultServerOpts(), opts...)...)
 
-    // Config init and validation
-    //var dbProviderVal pb.Database_Provider
-    dbProviderVal, ok := pb.Database_Provider_value[*databaseProvider]
-    if !ok {
-        providers := remove(maps.Values(pb.Database_Provider_name), "UNKNOWN")
-        log.Fatalf("pb.Config.Database.Provider is not a valid name: '%s'", providers)
-    }
-    cfg := &pb.Config{
-        Environment: *environment,
-        Database: &pb.Database{
-            Provider: pb.Database_Provider(dbProviderVal),
-            Connection: &pb.Database_Connection{
-                Dsn: *databaseConnectionDsn,
-            },
-        },
-    }
     //pb.RegisterSampleServiceServer(grpcServer)
     pb.RegisterSampleServiceServer(grpcServer, newSampleServer(cfg))
     // grpc reflection enabled

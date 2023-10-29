@@ -63,6 +63,9 @@ message Config {
     // database config
     Database database = 4;
 
+    // logging config
+    Logging logging = 5;
+
     // Creation time of the Config
     google.protobuf.Timestamp created_at = 10001 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -88,3 +91,33 @@ message Database {
     // connection
     Connection connection = 2;
 }
+
+// Logging message cotains the log library configuration settings
+message Logging {
+
+  // Logging severity level psuedo aligns to RFC5424
+  enum SeverityLevel {
+		option allow_alias = true;
+    SEVERITY_LEVEL_UNKNOWN = 0;
+    // Panic level, highest level of severity.
+    PANIC = 1;
+    EMERGENCY = 1;
+    // Fatal level.
+    FATAL = 2;
+    CRITIAL = 2;
+    // Error level.
+    ERROR = 3;
+    // Warn level. Non-critical entries that deserve eyes.
+    WARN = 4;
+    // Info level. General operational entries about what's going on inside the
+    // application.
+    INFO = 5;
+    // Debug level. Usually only enabled when debugging. Very verbose logging.
+    DEBUG = 6;
+    // Trace level. Designates finer-grained informational events than the Debug.
+    TRACE = 7;
+  }
+  // log severity level
+  SeverityLevel severity_level = 1;
+}
+

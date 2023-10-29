@@ -119,20 +119,32 @@ message CreateBookResponse {
 
 // Request message for ListBooks method
 message ListBooksRequest {
-    // Specify the Book name prefix. Matches with wildcard at the end
+    // Specify the Book name prefix. Matches with wildcard at the end. e.g 'abc%'
+		// Note: This is restricted to one static field prefix for this example.
     string name_prefix = 1;
+		// Order By enum for specific Book field(s).
+		// Note: This is restricted to two static fields for this example.
     enum OrderBy {
-        DEFAULT = 0;
+        ORDER_BY_UNSPECIFIED = 0; // UNSPECIFIED maps to CREATED_AT
         NAME = 1;
         CREATED_AT = 2;
+        UPDATED_AT = 3;
+    }
+		// Order By Direction enum for specific Book OrderBy enum field direction
+    enum OrderByDirection {
+        ORDER_BY_DIRECTION_UNSPECIFIED = 0; // UNSPECIFIED maps to DESC
+        ASC = 1;
+        DESC = 2;
     }
     // Specify the Order By enum to sort the results by column to be returned by the server.
     OrderBy order_by = 2;
+    // Specify the Order By Direction enum to return the sort results by direction to be returned by the server.
+    OrderByDirection order_by_direction = 3;
     // Specify the maximum number of results to be returned by the server.
     // If the page_size is 0, the server will decide the number of results to be returned.
-    int32 page_size = 3;
+    int32 page_size = 4;
     // This field represents the pagination token to retrieve the next page of results.
-    string page_token = 4;
+    string page_token = 5;
 }
 
 // Request response for ListBooks method
