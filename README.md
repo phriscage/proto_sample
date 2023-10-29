@@ -8,13 +8,18 @@
 
 # Overview
 
-This Proto Sample repository showcases a pseudo type-driven, data model first, application design approach with the following features:
+This Proto Sample repository showcases a pseudo type-driven, data model first, application design approach with the following primary features:
 
-* A sample protobuf data model
-* generating language specific libraries
+* Protobuf data model
 * gRPC service interface
-* executable CLI client
-* client examples
+* language specific libraries
+* simple gRPC server
+* CLI client examples
+
+These additional features in the Proto Sample are utilized for simplcity:
+
+* relational database storage
+* object relational mapping
 
 The gRPC service's interface, method, and REST transcoded resources follow the Google Cloud API and API Improvement Proposals naming standards ([here](https://cloud.google.com/apis/design/naming_convention) and [here](https://google.aip.dev/))
 
@@ -205,3 +210,15 @@ Build the client
 Test
 
     samplectl -h
+
+
+# Wishlist
+
+These are some additional feature components I would like to include/showcase in this example
+
+* automated build tool
+* deployment configurations
+* gRPC to REST transcoding
+* custom data model field extensions
+* schema and DDL converters
+* tests, tests, tests!
