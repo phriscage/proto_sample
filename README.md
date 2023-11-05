@@ -42,39 +42,52 @@ flowchart BT
     direction RL
     LIBRARIES([Compiled Libraries])
     OPENAPI([OpenAPI Spec])
+    DOCS([Documentation])
     STUBS([Client & Server Stubs])
     PROXY([Generated Proxy])
-    SCHEMA([Data Schemas])
+    SCHEMA([DB Schemas])
   end
 
   PROTO --> |protoc-gen|LIBRARIES
   PROTO --> |protoc-gen-sql/avro|SCHEMA
-  INTERFACES --> |protoc-gen-openapi|OPENAPI
-  INTERFACES --> |protoc-gen-grpc|STUBS
   INTERFACES --> |protoc-gen-grpc-gateway|PROXY
-
-  subgraph apis[" "]
-    direction RL
-    REST[REST Service] & GRPC[gRPC Service]
-    REST -->|transcodes|GRPC
-  end
+  INTERFACES --> |protoc-gen-openapi|OPENAPI
+  INTERFACES --> |protoc-gen-docs|DOCS
+  INTERFACES --> |protoc-gen-grpc|STUBS
 
   subgraph clients[" "]
     direction RL
     %% Golang & Python & JAVA & XYZ["..."]
-    R-CLIENT["API client"] & G-CLIENT["gRPC client"]
+    R-CLIENT["REST client"]
+    G-CLIENT["gRPC client"]
   end
 
+  subgraph docs[" "]
+    G-DOCS["gRPC docs"]
+    R-DOCS["REST docs"]
+  end
+
+  subgraph apis[" "]
+    direction RL
+    REST[REST Service] & GRPC[gRPC Service]
+    REST <-->|transcodes|GRPC
+  end
+
+  PROXY -.->|imports|REST
+
+  OPENAPI -.->|generates|R-DOCS
+  OPENAPI -.->|utilizes|R-CLIENT
+
+  DOCS -.-> |utilizes|G-DOCS
   LIBRARIES -.->|imports|G-CLIENT
-  PROXY -.->|uses|REST
-  STUBS -.->|imports|G-CLIENT
-  OPENAPI -.->|imports|R-CLIENT
-  LIBRARIES -.->|imports|R-CLIENT
+  STUBS -.->|utilizes|G-CLIENT
+
   R-CLIENT -->|calls|REST
   G-CLIENT -->|calls|GRPC
-  STUBS -..->|uses|GRPC
+  STUBS -..->|utilizes|GRPC
 
-class libraries,data-model,apis,clients someclass;
+%% linkStyle 0,3 color:green;
+class libraries,data-model,apis,clients,docs someclass;
 classDef someclass fill:#F4FAFC,stroke:#333,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
 ```
 
