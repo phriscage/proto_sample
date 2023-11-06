@@ -8,7 +8,7 @@
 
 # Overview
 
-This Proto Sample repository showcases a pseudo type-driven, data model first, application design approach with the following primary features:
+This Proto Sample repository provides a psuedo type-driven, data-model-first example for application design that showcases standardization and automatic generation of dependent data and application components. By starting with a well-defined, core data model using protobuf, application owners are able to create compiled libraries, sample servers or clients, and documentation using specific plugins and extensions based on the core model. This initial, non-exhaustive list includes the primary features:
 
 * Protobuf data model
 * gRPC service interface
@@ -21,12 +21,9 @@ These additional features in the Proto Sample are utilized for simplcity:
 * relational database storage
 * object relational mapping
 
-The data model is the foundational core layer that is utilzed to automate the build-out of the upstream components via various plugins and extensions. See [architecture](#architecture) for the dependency graph
+The [Data Model Dependency Graph](#data-model-dependency-graph) highlights data model dependencies with the foundational layer at the bottom which is utilized to automate the build-out of the upstream components.
 
-The gRPC service's interface, method, and REST transcoded resources follow the Google Cloud API and API Improvement Proposals naming standards ([here](https://cloud.google.com/apis/design/naming_convention) and [here](https://google.aip.dev/))
-
-
-# Architecture
+## Data Model Dependency Graph
 
 ```mermaid
 flowchart BT
@@ -90,6 +87,12 @@ flowchart BT
 class libraries,data-model,apis,clients,docs someclass;
 classDef someclass fill:#F4FAFC,stroke:#333,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
 ```
+
+The gRPC service's interface, method, and REST transcoded resources follow the Google Cloud API and API Improvement Proposals naming standards ([here](https://cloud.google.com/apis/design/naming_convention) and [here](https://google.aip.dev/))
+
+
+# Architecture
+
 
 # Quick Start
 
