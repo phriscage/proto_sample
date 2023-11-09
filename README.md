@@ -96,18 +96,6 @@ The gRPC service's interface, method, and REST transcoded resources follow the G
 
 # Quick Start
 
-## Deployment
-
-Build & deploy the components in a kubneretes environemnt (TBD) or separately on your local machine
-
-### Kubernetes
-
-TBD - placeholder for kubernetes-manifests and helm/deployment
-
-### Separately
-
-Follow instructions in the [Development](#development) section below.
-
 
 ## Validation
 
@@ -120,17 +108,17 @@ After you have an instance of the gRPC server running, you can use either the [g
 
 Install the `grpcurl` CLI to your local machine to communicate with the gRPC server. eg. OSX
 
-    $ brew install grpcurl
+    brew install grpcurl
 
 List available gRPC server services (via reflection)
 
-    $ grpcurl -plaintext localhost:10000 list
+    grpcurl -plaintext localhost:10000 list
 
 List all methods of an available service(s) (via reflection)
 
-_*Note*_ You will need the service proto files (and import the directories of the proto dependencies) for the gRPC server service reflection to work
+_*Note*_ You will need to import the service proto files (and import the directories of the proto dependencies) for the gRPC server service reflection to work. Download via [3P Proto Dependencies](#3p-proto-dependencies)
 
-    $ grpcurl -plaintext -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 list sample.v1alpha.SampleService
+    grpcurl -plaintext -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 list sample.v1alpha.SampleService
 
 #### Sample interface methods
 
@@ -138,15 +126,15 @@ Try out some of the gRPC interface methods with `grpcurl`:
 
 GetBook:
 
-    $ grpcurl -plaintext -d '{"name": "123"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/GetBook
+    grpcurl -plaintext -d '{"name": "123"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/GetBook
 
 CreateBook:
 
-    $ grpcurl -plaintext -d '{"book": {"name": "123"} }' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/CreateBook
+    grpcurl -plaintext -d '{"book": {"name": "123"} }' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/CreateBook
 
 ListBooks:
 
-    $ grpcurl -plaintext -d '{"name_prefix": "1234"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/ListBooks
+    grpcurl -plaintext -d '{"name_prefix": "1234"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/ListBooks
 
 
 ### samplectl client
@@ -155,15 +143,15 @@ Install the `samplectl` exutable CLI client on your local machine to communicate
 
 List the help for the client
 
-    $ sampletlctl -h
+    sampletlctl -h
 
 
 # Development
 
-Setup a local development environemnt to build the Proto Sample executables to test the functionality and generate the appropriate libraries. You will need to following prerequisites:
+Setup a local development environment to generate (build & compile) the Proto Sample libraries & executables to test the functionality of the appropriate services. You will need to following prerequisites:
 
 * Golang
-* proto files
+* Buf
 * database
 * server & client executables
 
@@ -171,8 +159,7 @@ Setup a local development environemnt to build the Proto Sample executables to t
 
 First, verify you have golang >= 1.20.x installed, or download from [Go.dev](https://go.dev/dl/)
 
-    $ go version
-    go version go1.20 linux/amd64
+    go version
 
 Set the GO_PATH environment variables in you shell profile config after install:
 
@@ -190,61 +177,35 @@ If initial version, instatiate `go mod` and `go mod tidy`
     go mod tidy
 
 
-## Protobuf
+## Buf
 
-Generate the protobuf files for the following languages: *Golang*
+Install the [Buf CLI](https://buf.build/docs/installation) for managing protobuf dependencies and generating libraries
+*OSX*
+
+    brew install bufbuild/buf/buf
 
 Install Protobuf tools and libraries:
 *OSX*
 
     brew install protobuf
 
-*Linux*
+Install the protoc-gen-go, protoc-gen-go-grpc, protoc-gen-gorm protoc plugin(s) for the output language of choice (Go, Go gRPC, GORM respectively) and set your $PATH. These plugins are defined in the [buf.gen.yaml](./buf.gen.yaml) configuration:
 
-    sudo apt-get install -y protobuf-compiler
-    #sudo apt-get install -y golang-goprotobuf-dev
-
-
-Install Go plugins:
-
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
     go install github.com/infobloxopen/protoc-gen-gorm@latest
 
-Download protobuf 3P build dependencies:
-_TODO_ Add [Buf](https://buf.build/) to streamline proto build process
-*Make directories*
+Export PATH env with GOPATH:
 
-    mkdir -p third_party
+    export PATH="$PATH:$(go env GOPATH)/bin"
 
-*Service*
+Download and cache protobuf dependencies:
 
-    git clone https://github.com/googleapis/googleapis third_party/googleapis
+    buf mod update proto/
 
-*GORM*
+Generate the libraries and client/server stubs:
 
-    git clone https://github.com/infobloxopen/protoc-gen-gorm third_party/protoc-gen-gorm
-
-*BQ Schemas*
-
-    git clone https://github.com/GoogleCloudPlatform/protoc-gen-bq-schema third_party/protoc-gen-bq-schmea
-
-Generate libraries:
-*Make directories*
-
-    mkdir -p gen/go
-
-*Service*
-
-    protoc -I proto -I third_party/googleapis -I third_party/protoc-gen-gorm --go_out ./gen/go/ --go_opt paths=source_relative --go-grpc_out ./gen/go/ --go-grpc_opt paths=source_relative proto/sample/v1alpha/*.proto
-
-*GROM*
-
-    protoc -I proto -I third_party/googleapis -I third_party/protoc-gen-gorm --gorm_out ./gen/go/ --gorm_opt paths=source_relative proto/sample/v1alpha/*.proto
-
-*BQ Schemas*
-
-    protoc -I temp -I third_party/protoc-gen-bq-schema --bq-schema_out=temp/bq_schema temp/bq_schema/foo.proto
+    buf generate
 
 ## Database
 
@@ -277,6 +238,15 @@ Build the client
 Test
 
     samplectl -h
+
+### 3P proto dependencies
+
+Download protobuf 3P import dependencies for `grpcurl`
+
+    mkdir -p third_party
+
+    git clone https://github.com/googleapis/googleapis third_party/googleapis
+    git clone https://github.com/infobloxopen/protoc-gen-gorm third_party/protoc-gen-gorm
 
 
 # Wishlist

@@ -1,0 +1,12 @@
+version: v1
+# name: buf.build/user/sample
+deps:
+ - buf.build/googleapis/googleapis
+ - buf.build/grpc-ecosystem/grpc-gateway
+ - buf.build/piotrostr/protoc-gen-gorm
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT
