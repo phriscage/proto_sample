@@ -1,0 +1,31 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "ctl",
+    srcs = [
+        "admin.go",
+        "book.go",
+        "book_create.go",
+        "book_get.go",
+        "client.go",
+        "config.go",
+        "config_get.go",
+        "root.go",
+        "utils.go",
+        "version.go",
+    ],
+    importpath = "github.com/phriscage/proto_sample/cmd/sample/ctl",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//gen/go/sample/v1alpha",
+        "@com_github_mitchellh_go_homedir//:go-homedir",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@com_github_spf13_cobra//:cobra",
+        "@com_github_spf13_viper//:viper",
+        "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//credentials",
+        "@org_golang_google_grpc//metadata",
+        "@org_golang_google_grpc//testdata",
+        "@org_golang_google_protobuf//types/known/emptypb",
+    ],
+)

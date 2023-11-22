@@ -1,3 +1,9 @@
+# Bazel
+/bazel-proto_sample
+/bazel-bin
+/bazel-out
+/bazel-testlogs
+
 # Temp and 3p directories
 temp/
 tmp/

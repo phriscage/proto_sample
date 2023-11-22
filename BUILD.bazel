@@ -1,0 +1,20 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# BUILD.bazel
+# gazelle:prefix github.com/phriscage/proto_sample
+# gazelle:exclude third_party
+# gazelle:exclude proto
+# gazelle:proto disable_global
+gazelle(name = "gazelle")
+
+# adding rule to update deps
+gazelle(
+    name = "gazelle-update-repos",
+    args = [
+        "-from_file=go.mod",
+        "-to_macro=deps.bzl%go_dependencies",
+        "-prune",
+        "-build_file_proto_mode=disable_global",
+    ],
+    command = "update-repos",
+)
