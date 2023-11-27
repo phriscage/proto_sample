@@ -3,7 +3,7 @@
 * [Overview](#overview)
 * [Architecture](#architecture)
 * [Quick Start](#quick-start)
-* [Development](#development)
+* [Development](./DEVELOPMENT.md)
 * [Data Model](#data-model)
 
 # Overview
@@ -116,7 +116,7 @@ List available gRPC server services (via reflection)
 
 List all methods of an available service(s) (via reflection)
 
-_*Note*_ You will need to import the service proto files (and import the directories of the proto dependencies) for the gRPC server service reflection to work. Download via [3P Proto Dependencies](#3p-proto-dependencies)
+_**Note**_ You will need to import the service proto files (and import the directories of the proto dependencies) for the gRPC server service reflection to work. Download via [3P Proto Dependencies](#3p-proto-dependencies)
 
     grpcurl -plaintext -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 list sample.v1alpha.SampleService
 
@@ -137,107 +137,9 @@ ListBooks:
     grpcurl -plaintext -d '{"name_prefix": "1234"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/ListBooks
 
 
-### samplectl client
-
-Install the `samplectl` exutable CLI client on your local machine to communicate with the gRPC server. Follow the directions for [CLI client](#cli-client) below to build & install locally. You ma
-
-List the help for the client
-
-    sampletlctl -h
-
-
-# Development
-
-Setup a local development environment to generate (build & compile) the Proto Sample libraries & executables to test the functionality of the appropriate services. You will need to following prerequisites:
-
-* Golang
-* Buf
-* database
-* server & client executables
-
-## Golang
-
-First, verify you have golang >= 1.20.x installed, or download from [Go.dev](https://go.dev/dl/)
-
-    go version
-
-Set the GO_PATH environment variables in you shell profile config after install:
-
-    echo "export GO_PATH=~/go" >> ~/.bash_profile
-    echo "export PATH=$PATH:/$GO_PATH/bin" >> ~/.bash_profile
-    source ~/.bash_profile
-
-Next, clone or download this project and download the package dependencies
-
-    go mod download
-
-If initial version, instatiate `go mod` and `go mod tidy`
-
-    go mod init github.com/phriscage/proto_sample
-    go mod tidy
-
-
-## Buf
-
-Install the [Buf CLI](https://buf.build/docs/installation) for managing protobuf dependencies and generating libraries
-*OSX*
-
-    brew install bufbuild/buf/buf
-
-Install Protobuf tools and libraries:
-*OSX*
-
-    brew install protobuf
-
-Install the protoc-gen-go, protoc-gen-go-grpc, protoc-gen-gorm protoc plugin(s) for the output language of choice (Go, Go gRPC, GORM respectively) and set your $PATH. These plugins are defined in the [buf.gen.yaml](./buf.gen.yaml) configuration:
-
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
-    go install github.com/infobloxopen/protoc-gen-gorm@latest
-
-Export PATH env with GOPATH:
-
-    export PATH="$PATH:$(go env GOPATH)/bin"
-
-Download and cache protobuf dependencies:
-
-    buf mod update proto/
-
-Generate the libraries and client/server stubs:
-
-    buf generate
-
 ## Database
 
 Follow instructions in the [db/README](db/README.md)
-
-## Executables
-
-Generate the gRPC server and executable CLI client.
-
-Create the [/bin](./bin) directory and export in the PATH environment variable:
-
-    mkdir -p bin && export PATH=$PATH:${PWD}/bin
-
-### gRPC server
-
-Build the server
-
-    GO111MODULE=on go build -o bin/samplesrv ./server/.
-
-Test
-
-    samplesrv -h
-
-### CLI client
-
-Build the client
-
-    GO111MODULE=on go build -o bin/samplectl ./cmd/sample
-
-Test
-
-    samplectl -h
 
 ### 3P proto dependencies
 
@@ -253,7 +155,7 @@ Download protobuf 3P import dependencies for `grpcurl`
 
 These are some additional feature components I would like to include/showcase in this example
 
-* automated build tool
+* ~~automated build tool~~ (Bazel added)
 * deployment configurations
 * gRPC to REST transcoding
 * custom data model field extensions

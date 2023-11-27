@@ -1,11 +1,20 @@
+# buf.gen.yaml
 version: v1
 plugins:
+    # The name of the plugin.
+    # By default, buf generate will look for a binary named protoc-gen-NAME on your $PATH.
+    # Alternatively, use a remote plugin:
+    # plugin: buf.build/protocolbuffers/go:v1.28.1
+
+    # go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
   - plugin: go
     out: gen/go
     opt: paths=source_relative
+    # go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
   - plugin: go-grpc
     out: gen/go
     opt: paths=source_relative
+    # go install github.com/infobloxopen/protoc-gen-gorm@latest
   - plugin: gorm
     out: gen/go
     opt: paths=source_relative
