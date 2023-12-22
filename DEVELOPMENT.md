@@ -1,5 +1,14 @@
 # Development
 
+* [Golang](#golang)
+* [Libraries](#libraries)
+    * [Buf](#buf)
+    * [Protoc](#protoc)
+* [Executables](#executables)
+    * [Bazel](#bazel)
+    * [Go](#go)
+    * [Docker](#docker)
+
 Setup a local development environment to generate the Proto Sample [libraries][#libraries] & [executables][#executables] to test and develop the functionality of the appropriate services. There are automated (preferred) and manual instrauctions to build and compile each component and appropriate dependencies. Installing [Golang][#golang] is a prerequisite for either installation method.
 
 _**Note**_ For these examples, I am using an *OSX* development environment (arm64, Apple M2) with [Homebrew](https://brew.sh/) installed.
@@ -126,3 +135,24 @@ Test both
     samplesrv -h
 
     samplectl -h
+
+
+### Docker
+
+Docker container is another option to test during local development. These instructions showcase building the Docker container locally from [Dockerfile](./Dockerfile) using [Docker build](https://docs.docker.com/build/guide/) and running in Docker engine on your local machine.
+
+Install [Docker Desktop or Docker Engine](https://docs.docker.com/get-docker/) and verify
+
+    docker version
+
+Build the container image
+
+    docker build -t proto-sample-server:dev .
+
+Run the container with the local file system and DB and DEBUG log severity
+
+    docker run --rm -it -v ${PWD}/db:/app/db -p 10000:10000 proto-sample-server:dev -host 0.0.0.0 -log_severity DEBUG -database_connection_dsn db/data/sqlite/data.db
+
+Test with either `grpcurl` or executable client above
+
+    grpcurl -plaintext localhost:10000 list
