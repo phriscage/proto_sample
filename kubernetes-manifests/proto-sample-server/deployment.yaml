@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: proto-sample-server
+  name: proto-sample-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proto-sample-server
+  template:
+    metadata:
+      labels:
+        app: proto-sample-server
+    spec:
+      containers:
+      - image: proto-sample-server:dev
+        name: proto-sample-server
+        imagePullPolicy: Never # use Never for local minikube & Docker development
+        env:
+          - name: HOST
+            value: '0.0.0.0'
+          - name: DATABASE_PROVIDER
+            value: 'SQLITE3'
+          - name: DATABASE_CONNECTION_DSN
+            value: 'file:test.db?cache=shared&mode=memory'
+        #args: ['-database_connection_dsn', 'file:test.db?cache=shared&mode=memory']
+        ports:
+        - containerPort: 10000
+          name: grpc-server
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi

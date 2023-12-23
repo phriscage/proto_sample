@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: proto-sample-server
+  name: proto-sample-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 1000
+    targetPort: 10000
+    protocol: TCP
+  selector:
+    app: proto-sample-server

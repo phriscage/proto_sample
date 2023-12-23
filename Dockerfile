@@ -18,7 +18,7 @@ ENV GOARCH=amd64
 
 # Install git and ca-certificates (needed to be able to call HTTPS)
 RUN apk add --no-cache ca-certificates git
-#RUN apk add build-base
+RUN apk add build-base
 
 # Move to working directory /app
 WORKDIR /app

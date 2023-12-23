@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    #nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
+  name: fortune-ingress
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: grpctest.dev.mydomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: proto-sample-server
+            port:
+              number: 1000
+  tls:
+  # This secret must exist beforehand
+  # The cert must also contain the subj-name grpctest.dev.mydomain.com
+  # https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/PREREQUISITES.md#tls-certificates
+  - secretName: wildcard.dev.mydomain.com
+    hosts:
+      - grpctest.dev.mydomain.com
