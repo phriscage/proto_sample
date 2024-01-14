@@ -54,6 +54,7 @@ sqlite3
 
 PostgreSQL
 
+    migrate -source file://migrations/postgres -database :
 
 ## Validate
 
@@ -75,3 +76,14 @@ sqlite3
     sqlite3 data/sqlite/data.db '.mode json' "SELECT * FROM books;
 
 PostgreSQL
+
+
+# Scratchpad
+
+**Kubernetes**
+
+Deploy stand-alone PostgreSQL in kubernetes
+
+
+Deploy jump-host to run migrate in kubernetes
+

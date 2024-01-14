@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-migrate
+  #annotations:
+    #pv.beta.kubernetes.io/gid: "1000"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 500Mi
+  hostPath:
+    path: /data/migrations
+  storageClassName: standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-migrate
+  #annotations:
+    #pv.beta.kubernetes.io/gid: "1000"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+  volumeName: postgres-migrate

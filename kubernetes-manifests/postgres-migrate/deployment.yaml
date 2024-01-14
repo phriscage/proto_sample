@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres-migrate
+  name: postgres-migrate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-migrate
+  template:
+    metadata:
+      labels:
+        app: postgres-migrate
+    spec:
+      #securityContext:
+        #runAsUser: 1000
+        #runAsGroup: 3000
+        #fsGroup: 2000
+      containers:
+      - name: postgres-migrate
+        image: migrate/migrate:4
+        #command: ["migrate", "-version"]
+        command: ["/bin/ash", "-c", "sleep 100d"]
+        imagePullPolicy: Always # use Never for local minikube & Docker development
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_USER
+                name: postgres
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: postgres
+        volumeMounts:
+        - name: postgres-migrate
+          mountPath: /data/migrations
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+      restartPolicy: Always
+      volumes:
+      - name: postgres-migrate
+        persistentVolumeClaim:
+          claimName: postgres-migrate
