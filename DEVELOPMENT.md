@@ -8,6 +8,7 @@
     * [Bazel](#bazel)
     * [Go](#go)
     * [Docker](#docker)
+* [Database](#database)
 
 Setup a local development environment to generate the Proto Sample [libraries][#libraries] & [executables][#executables] to test and develop the functionality of the appropriate services. There are automated (preferred) and manual instrauctions to build and compile each component and appropriate dependencies. Installing [Golang][#golang] is a prerequisite for either installation method.
 
@@ -156,3 +157,9 @@ Run the container with the local file system and DB and DEBUG log severity
 Test with either `grpcurl` or executable client above
 
     grpcurl -plaintext localhost:10000 list
+
+
+## Database
+
+Follow the instructions in the [db/README](db/README.md) to setup a database instance.
+

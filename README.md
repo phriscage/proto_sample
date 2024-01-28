@@ -3,7 +3,8 @@
 * [Overview](#overview)
 * [Architecture](#architecture)
 * [Quick Start](#quick-start)
-* [Development](./DEVELOPMENT.md)
+* [Development](#development)
+* [Deployment](#deployment)
 * [Data Model](#data-model)
 
 # Overview
@@ -99,56 +100,15 @@ The gRPC service's interface, method, and REST transcoded resources follow the G
 
 ## Validation
 
-After you have an instance of the gRPC server running, you can use either the [grpcurl](#grpcurl-client) or the [samplectl](#samplectl-client) executable CLI client to validate and communicate with the gRPC server interface methods. Both clients leverage the same gRPC server interfeace API methods defined in the [sample_service.proto](./proto/sample/v1alpha/sample_service.proto)
-
-### grpcurl client
-
-**tl;dr** From [grpcurl](https://github.com/fullstorydev/grpcurl):
-> grpcurl is a command-line tool that lets you interact with gRPC servers. It's basically curl for gRPC servers.
-
-Install the `grpcurl` CLI to your local machine to communicate with the gRPC server. eg. OSX
-
-    brew install grpcurl
-
-List available gRPC server services (via reflection)
-
-    grpcurl -plaintext localhost:10000 list
-
-List all methods of an available service(s) (via reflection)
-
-_**Note**_ You will need to import the service proto files (and import the directories of the proto dependencies) for the gRPC server service reflection to work. Download via [3P Proto Dependencies](#3p-proto-dependencies)
-
-    grpcurl -plaintext -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 list sample.v1alpha.SampleService
-
-#### Sample interface methods
-
-Try out some of the gRPC interface methods with `grpcurl`:
-
-GetBook:
-
-    grpcurl -plaintext -d '{"name": "123"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/GetBook
-
-CreateBook:
-
-    grpcurl -plaintext -d '{"book": {"name": "123"} }' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/CreateBook
-
-ListBooks:
-
-    grpcurl -plaintext -d '{"name_prefix": "1234"}' -import-path third_party/googleapis -import-path third_party/protoc-gen-gorm -import-path proto -proto sample/v1alpha/sample_service.proto localhost:10000 sample.v1alpha.SampleService/ListBooks
+Follow the instructions in the [Testing](./TESTING.md) document to validate (and test) your gRPC server with some examples.
 
 
-## Database
+# Development
 
-Follow instructions in the [db/README](db/README.md)
+Follow the instructions in the [Development](./DEVELOPMENT.md) document to setup a development environment.
 
-### 3P proto dependencies
 
-Download protobuf 3P import dependencies for `grpcurl`
-
-    mkdir -p third_party
-
-    git clone https://github.com/googleapis/googleapis third_party/googleapis
-    git clone https://github.com/infobloxopen/protoc-gen-gorm third_party/protoc-gen-gorm
+# Deployment
 
 
 # Wishlist
