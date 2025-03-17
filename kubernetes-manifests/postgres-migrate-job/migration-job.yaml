@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-migrate
+spec:
+  template:
+    spec:
+      containers:
+        - name: postgres-migrate
+          image: migrate/migrate:4
+          command: ["migrate", "-version"]
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_USER
+                  name: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: postgres
+          volumeMounts:
+            - name: postgres-migrate
+              mountPath: /data/migration
+      volumes:
+        - name: postgres-migrate
+          persistentVolumeClaim:
+            claimName: postgres-migrate
+      restartPolicy: Never
+  backoffLimit: 4

@@ -10,7 +10,7 @@
     * [Docker](#docker)
 * [Database](#database)
 
-Setup a local development environment to generate the Proto Sample [libraries][#libraries] & [executables][#executables] to test and develop the functionality of the appropriate services. There are automated (preferred) and manual instrauctions to build and compile each component and appropriate dependencies. Installing [Golang][#golang] is a prerequisite for either installation method.
+Setup a local development environment to generate the Proto Sample [Libraries](#libraries) & [Executables](#executables) to test and develop the functionality of the appropriate services. There are automated (preferred) and manual instrauctions to build and compile each component and appropriate dependencies. Installing [Golang](#golang) is a prerequisite for either installation method.
 
 _**Note**_ For these examples, I am using an *OSX* development environment (arm64, Apple M2) with [Homebrew](https://brew.sh/) installed.
 
